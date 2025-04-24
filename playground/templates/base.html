@@ -60,7 +60,7 @@
       background: rgba(0, 0, 0, 0.7);
       padding: 40px;
       border-radius: 15px;
-      width: 600px;
+      width: 350px;
       margin: 140px auto 0;
       box-shadow: 0 0 20px rgba(0,0,0,0.3);
       text-align: center;
@@ -161,7 +161,11 @@
     </div>
   </div>
 
-  
+  <div class="container">
+    {% block content %}
+    <!-- Page-specific content will be injected here -->
+    {% endblock %}
+  </div>
 
   <script>
     function switchTab(tab) {
