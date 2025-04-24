@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MMU-VR GROUP{% endblock %}</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      color: #fff;
+      background: url('https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?cs=srgb&dl=pexels-jplenio-1103970.jpg&fm=jpg') no-repeat center center fixed;
+      background-size: cover;
+      padding-top: 80px;
+    }
+
+    .navbar {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+
+    .navbar .site-title {
+      font-size: 22px;
+      font-weight: bold;
+      color: #00d4ff;
+      letter-spacing: 1px;
+    }
+
+    .navbar .nav-buttons button {
+      padding: 10px 20px;
+      margin-left: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .navbar .nav-buttons button.active {
+      background: #007bff;
+      color: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 40px;
+      border-radius: 15px;
+      width: 600px;
+      margin: 140px auto 0;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      text-align: center;
+    }
+
+    .logo {
+      width: 120px;
+      height: auto;
+      margin-bottom: 10px;
+    }
+
+    .title {
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #00d4ff;
+      letter-spacing: 1px;
+    }
+
+    form {
+      display: none;
+      flex-direction: column;
+    }
+
+    form.active {
+      display: flex;
+    }
+
+    input {
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      font-size: 14px;
+    }
+
+    input:focus {
+      border: 2px solid #00d4ff;
+      box-shadow: 0 0 5px rgba(0, 212, 255, 0.8);
+    }
+
+    button[type="submit"] {
+      background: #00d4ff;
+      color: #000;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    button[type="submit"]:hover {
+      background: #00b2d8;
+      transform: scale(1.05);
+    }
+
+    ::placeholder {
+      color: #aaa;
+    }
+
+    .forgot-password a {
+      color: #00d4ff;
+      text-decoration: none;
+      font-size: 14px;
+      margin-top: 10px;
+      display: inline-block;
+    }
+
+    .forgot-password a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        width: 90%;
+        margin-top: 80px;
+      }
+
+      .logo {
+        width: 100px;
+      }
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="navbar">
+    <div class="site-title">MMU-VR GROUP</div>
+    <div class="nav-buttons">
+      {% block navbar_buttons %}
+      <!-- You can override these in child templates -->
+      <button id="loginTab" class="active" onclick="switchTab('login')">Login</button>
+      <button id="signupTab" onclick="switchTab('signup')">Sign Up</button>
+      {% endblock %}
+    </div>
+  </div>
+
+  
+
+  <script>
+    function switchTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const loginTab = document.getElementById('loginTab');
+      const signupTab = document.getElementById('signupTab');
+
+      if (tab === 'login') {
+        loginForm?.classList.add('active');
+        signupForm?.classList.remove('active');
+        loginTab?.classList.add('active');
+        signupTab?.classList.remove('active');
+      } else {
+        signupForm?.classList.add('active');
+        loginForm?.classList.remove('active');
+        signupTab?.classList.add('active');
+        loginTab?.classList.remove('active');
+      }
+    }
+  </script>
+
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>
