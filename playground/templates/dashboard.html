@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?cs=srgb&dl=pexels-jplenio-1103970.jpg&fm=jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: white;
+    }
+
+    /* Navbar Styling */
+    .navbar-custom {
+      background-color: rgba(52, 58, 64, 0.95);
+      padding: 0.8rem 1rem;
+    }
+
+    .navbar-custom .navbar-brand {
+      color: white;
+      font-weight: bold;
+      margin-left: auto; /* Push to the right */
+    }
+
+    .navbar-custom .navbar-brand:hover {
+      color: #ffc107;
+    }
+
+    /* General Card Styling */
+    .card {
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .dashboard-title {
+      margin: 30px 0 20px;
+    }
+
+    h6 {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-custom">
+    <a class="navbar-brand ml-auto" href="#">Dashboard</a>
+  </nav>
+
+  <!-- Main Dashboard -->
+  <div class="container mt-5">
+
+    <h3 class="dashboard-title">Team Task Dashboard</h3>
+
+    <!-- Summary Cards -->
+    <div class="row text-dark mb-4">
+      <div class="col-md-4">
+        <div class="card p-3 text-center">
+          <h5>Unassigned</h5>
+          <p><strong>1</strong> Unassigned Tasks</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-3 text-center">
+          <h5>In Progress</h5>
+          <p><strong>10</strong> tasks in progress</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card p-3 text-center">
+          <h5>Completed</h5>
+          <p><strong>9</strong> tasks completed</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row text-dark">
+      <div class="col-md-6">
+        <div class="card p-3">
+          <h6>Total Tasks by Assignee</h6>
+          <canvas id="pieChart"></canvas>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card p-3">
+          <h6>Open Tasks by Assignee</h6>
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Chart.js Script -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Pie Chart
+    new Chart(document.getElementById("pieChart"), {
+      type: 'pie',
+      data: {
+        labels: ["PRITHVIRAAJ", "LeeZhuoFeng", "LowJunHong", "Unassigned"],
+        datasets: [{
+          data: [30.43, 30.43, 30.43, 8.69],
+          backgroundColor: ["#ff6f61", "#ff9999", "#4e5d6c", "#a5a5a5"]
+        }]
+      }
+    });
+
+    // Bar Chart
+    new Chart(document.getElementById("barChart"), {
+      type: 'bar',
+      data: {
+        labels: ["PRITHVIRAAJ", "LeeZhuoFeng", "LowJunHong", "Unassigned"],
+        datasets: [{
+          label: "Tasks",
+          data: [3, 5, 5, 1],
+          backgroundColor: ["#ff6f61", "#ff9999", "#4e5d6c", "#a5a5a5"]
+        }]
+      },
+      options: {
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1
+            }
+          }
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>
