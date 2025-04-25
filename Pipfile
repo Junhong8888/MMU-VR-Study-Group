@@ -8,6 +8,7 @@ django = "*"
 django-debug-toolbar = "*"
 mysqlclient = "*"
 mysql-connector-python = "*"
+channels = {extras = ["daphne"], version = "*"}
 
 [dev-packages]
 

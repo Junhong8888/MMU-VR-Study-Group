@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-
+'''
 # Create your models here.
 class group(models.Model):
     time = models.TimeField()
@@ -25,7 +25,7 @@ class TaskProgressLog(models.Model):
     changed_time = models.TimeField()
     status = models.CharField(max_length=100)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
-    task_id = models.ForeignKey(task.id)
+    task_id = models.ForeignKey(task.id,on_delete=models.CASCADE)
     
     def __str__(self):
         return f'{self.status}'        
@@ -71,3 +71,4 @@ class membership(models.Model):
 
     def __str__(self):
         return f'{self.id}'
+'''        

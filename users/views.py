@@ -4,9 +4,10 @@ from django.contrib import messages
 from .forms import SignUpForm
 
 # Create your views here.
-
-
 def home(request):
+    return render(request,'homepage.html')
+
+def login_signup(request):
     signup_form = SignUpForm()  
 
     if request.method == 'POST':

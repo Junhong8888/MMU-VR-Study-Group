@@ -11,7 +11,7 @@
       padding: 0;
       height: 100vh;
       color: #fff;
-      background: url('https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?cs=srgb&dl=pexels-jplenio-1103970.jpg&fm=jpg') no-repeat center center fixed;
+      background: url('https://images.pexels.com/photos/346529/pexels-photo-346529.jpeg') no-repeat center center fixed;
       background-size: cover;
       padding-top: 80px; /* Add padding to avoid navbar overlap */
     }
@@ -178,7 +178,7 @@
 {% if useris_authenticated %}
 
 {% else %}  
-    <form method= "POST" action="{% url 'home' %}" id="loginForm" class="active">
+    <form method= "POST" action="{% url 'login_signup' %}" id="loginForm" class="active">
       {% csrf_token %}
       <input type="hidden" name="form_type" value="login">
       <input type="text" name="username"  placeholder="Username" required>
