@@ -20,7 +20,10 @@
     </body>
 </html>
 -->
-
+{% block navbar_buttons %}
+      <!-- You can override these in child templates -->
+      <a class="nav-item nav-link active" href="{% url 'group' %}">Create Group</a>
+{% endblock %}
 
 {% block content %}
 <h1>Hello World</h1>

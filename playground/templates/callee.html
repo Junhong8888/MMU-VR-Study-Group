@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Page Title</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <script type="module">
+        import * as common from 'MMU-VR-STUDY-GROUP/storefront/static/main.js'
+
+        async function start() {
+            const peerConnection = initializeBeforeReceivingOffer()
+            await receiveOfferSDP(peerConnection)
+            await sendAnswerSDP(peerConnection)
+
+            const dataChannel = await waitForDataChannel(peerConnection)
+            console.log("Sending message,check the other tab")
+            dataChannel.send("World")
+        }
+
+        function initializeBeforeReceivingOffer(){
+            const peerConnection = new RTCPeerConnection()
+            common.addConnectionStateHandler(peerConnection)
+            return peerConnection
+        }
+
+        async function receiveOfferSDP(peerConnection){
+            const remoteOfferString = prompt("Peer offer");
+            const remoteOffer = new RTCSessionDescription(JSON.parse(remoteOfferString))
+            await peerConnection.setRemoteDescription(remoteOffer)
+        }
+
+        async function sendAnswerSDP(peerConnection) {
+            const localAnswer = await peerConnection.createAnswer()
+            peerConnection.setLocalDescription(localAnswer)
+            console.log("localAnswerWithICECandidates:")
+            console.log(JSON.stringify(localAnswer))
+        }
+
+        function receiveIceCandidates(peerConnection){
+            const remoteIceCandidatesString = prompt("Peer iceCandidates");
+            const remoteIceCandidates = JSON.parse(remoteIceCandidatesString)
+            remoteIceCandidatesString.map(iceCandidate => {
+                peerConnection.addIceCandidate(iceCandidate)
+            })
+        }
+
+        function waitForDataChannel(peerConnection){
+            return common.waitForEvent((fulfill) => {
+                peerConnection.ondataChannel = function (e) {
+                    const dataChannel = e.channel
+                    dataChannel.onmessage = function (e) {
+                        console.log("Received message:",e.data)
+                    };
+                    fulfill(dataChannel)
+                }
+            })
+        }
+
+        start()
+    </script>
+</head>
+<body>
+    <h1>Hi! Check the console!</h1>
+</body>
+</html>

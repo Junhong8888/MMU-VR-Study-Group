@@ -23,5 +23,7 @@ urlpatterns = [
     path('playground/',include('playground.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
     path('',include('users.urls')),
-    path('users/',include('users.urls'))
+    path('users/',include('users.urls')),
+    path('chat/',include('chat.urls')),
+    path('grouping/',include('grouping.urls')),
 ] 

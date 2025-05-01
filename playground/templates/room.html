@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block navbar_buttons %}
+
+    <button id="create_group_Tab" class="active" onclick="switchTab('create')">Create</button>
+    <button id="join_group_Tab" onclick="switchTab('join')">Join</button>
+
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Create Room Form -->
+  <form method="POST" action="{% url 'create_room' %}" id="createForm" class="active">
+      {% csrf_token %}
+      <input type="hidden" name="form_type" value="create_group">
+
+      <!-- Topic Selection -->
+      <div class="form-group mb-3">
+          <label class="form-label">Topic</label>
+          <input list="topic-list" name="topic" placeholder="Topic Name" value="{{ topic.name }}" required class="form-control" style="width: 200px;">
+          <datalist id="topic-list">
+              {% for topic in topics %}
+                  <option value="{{ topic.name }}">{{ topic.name }}</option>
+              {% endfor %}
+          </datalist>
+      </div>
+
+      <!-- Room Name -->
+      <div class="form-group mb-3">
+          <label class="form-label">Room Name</label>
+          <input type="text" name="roomname" placeholder="Room Name" required class="form-control" style="width: 200px;">
+      </div>
+
+      <!-- Description -->
+      <div class="form-group mb-3">
+          <label class="form-label">Description</label>
+          <textarea name="description" placeholder="Room description..." class="form-control" style="width: 200px;"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-success">Create Room</button>
+  </form>
+
+    <form method="POST" action="{% url 'group' %}" id="joinForm" style="display: none;">
+        {% csrf_token %}
+        
+        <!-- Group Code -->
+        <div class="form-group">
+            <label class="col-form-label">Group Code</label>
+            <input type="text" name="group_code" placeholder="Enter Group Code" required style="width: 200px;">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary">Join</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function switchTab(tab) {
+    const createForm = document.getElementById('createForm');
+    const joinForm = document.getElementById('joinForm');
+    const createTab = document.getElementById('create_group_Tab');
+    const joinTab = document.getElementById('join_group_Tab');
+
+    if (tab === 'create') {
+        createForm.style.display = 'block';
+        joinForm.style.display = 'none';
+        createTab.classList.add('active');
+        joinTab.classList.remove('active');
+    } else if (tab === 'join') {
+        createForm.style.display = 'none';
+        joinForm.style.display = 'block';
+        joinTab.classList.add('active');
+        createTab.classList.remove('active');
+    }
+}
+</script>
+{% endblock %}

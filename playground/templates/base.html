@@ -164,7 +164,7 @@
     {% block content %}
     <!-- Page-specific content will be injected here -->
     {% endblock %}
-
+{% block extra_scripts %}
   <script>
     function switchTab(tab) {
       const loginForm = document.getElementById('loginForm');
@@ -186,6 +186,6 @@
     }
   </script>
 
-  {% block extra_scripts %}{% endblock %}
+{% endblock %}
 </body>
 </html>

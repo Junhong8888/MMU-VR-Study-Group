@@ -1,0 +1,79 @@
+{% load static %}
+<html>
+<head>
+  <title>WebRTC Video Conference</title>
+
+  <!-- Include your main JS file that handles WebRTC connection -->
+  <script src="{% static 'joint_connection.js' %}"></script>
+
+  <!-- Custom CSS for styling the video elements -->
+  <style>
+    #localVideo, #remoteVideo {
+      width: 45%;
+      height: auto;
+      border: 2px solid #ccc;
+      margin: 10px;
+      background-color: black;
+    }
+
+    #videoContainer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    #chatBox {
+      margin-top: 20px;
+    }
+
+    #chatBox input {
+      width: 80%;
+    }
+
+    #chatBox button {
+      width: 18%;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>WebRTC Video Conference</h1>
+
+  <div id="videoContainer">
+    <!-- Local video element to show the user's own webcam -->
+    <video id="localVideo" autoplay muted></video>
+    
+    <!-- Remote video element to show the other peer's webcam -->
+    <video id="remoteVideo" autoplay></video>
+  </div>
+
+  <div id="chatBox">
+    <h2>Chat</h2>
+    <input type="text" id="chatInput" placeholder="Type a message">
+    <button id="sendMessage">Send</button>
+    <div id="messages"></div>
+  </div>
+
+  <h2>Check the console for connection logs</h2>
+
+  <script type="module">
+    document.addEventListener("DOMContentLoaded", () => {
+      // Make sure to initialize the connection once the DOM is ready
+      const username = "{{ user }}";  // Assume user context is passed from Django
+      start(username);
+    });
+
+    // Handle sending chat messages
+    document.getElementById('sendMessage').addEventListener('click', () => {
+      const messageInput = document.getElementById('chatInput');
+      if (messageInput.value.trim()) {
+        socket.send(JSON.stringify({
+          type: 'chat',
+          message: messageInput.value
+        }));
+        messageInput.value = '';
+      }
+    });
+  </script>
+</body>
+</html>
