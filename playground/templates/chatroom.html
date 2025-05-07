@@ -14,11 +14,27 @@
           border-radius: 8px;
           background-color: black;
         }
+        #chat-container {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 25%;
+            height: 100vh;
+            background-color: #f8f9fa;
+            border-left: 1px solid #dee2e6;
+            padding: 0px 15px 15px 15px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        #chat-container label {
+            margin-top: 0 !important; /* Ensure label isn't pushing down */
+        }
     </style>
     <title>Hello, world!</title>
   </head>
   <body>
-    <div class="row">
+    <div class="column">
         <div class="col-md-6">
             <h5>Local Video</h5>
             <video id="localVideo" autoplay muted playsinline></video>
@@ -29,13 +45,11 @@
         </div>
     </div>
 
-    <div class="container">
-        <div class="row d-flex justify-content-right">
-            <div class="col-6">
+    <div id="chat-container">
                 <form>
                     <div class="form-group">
                         <label for="exampleFormControlTextarea1" class="h4 pt-5">Chatroom</label>
-                        <textarea class="form-control" id="chat-text" rows="10"></textarea><br>
+                        <textarea class="form-control" id="chat-text" rows="30" ></textarea><br>
                     </div>
                     <div class="form-group">
                         <input class="form-control" id="input" type="text"><br>

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'grouping',
     'chat',
     'channels',
+    'test',
 ]
 
 MIDDLEWARE = [
