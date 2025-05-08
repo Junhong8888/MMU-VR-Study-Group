@@ -43,7 +43,7 @@ def register(request):
 
         messages.success(request, 'User successfully created, login now')
         return redirect('login')
-    return render(request, 'todoapp/register.html', {})
+    return render(request, 'register.html', {})
 
 def LogoutView(request):
     logout(request)
@@ -65,7 +65,7 @@ def loginpage(request):
             return redirect('login')
 
 
-    return render(request, 'todoapp/login.html', {})
+    return render(request, 'login.html', {})
 
 
 def DeleteTask(request, name):
@@ -91,8 +91,8 @@ def TaskDetail(request, name):
     else:
         form = TodoForm(instance=task)
 
-    return render(request, 'todoapp/task_detail.html', {'form': form, 'task': task})
+    return render(request, 'task_detail.html', {'form': form, 'task': task})
 
 def reset_password(request):
-    return render(request, 'todoapp/reset_password.html') 
+    return render(request, 'reset_password.html') 
 

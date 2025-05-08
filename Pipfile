@@ -4,12 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
-django-debug-toolbar = "*"
 mysqlclient = "*"
-mysql-connector-python = "*"
-channels = {extras = ["daphne"], version = "*"}
 daphne = "*"
+django-debug-toolbar = "*"
+channels = {extras = ["daphane"], version = "*"}
+mysql-connector-python = "*"
+django = "*"
 
 [dev-packages]
 

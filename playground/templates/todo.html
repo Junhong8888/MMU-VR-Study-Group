@@ -52,9 +52,9 @@
                       {% endif %}
 
                      <td>
-                       <a href="{% url 'delete' i.todo_name %}"><button type="submit" class="btn btn-danger">Delete</button></a>
-                        <a href="{% url 'update' i.todo_name %}"><button type="submit" class="btn btn-success ms-1">Finished</button></a>
-                        <a href="{% url 'task-detail' i.todo_name %}"><button type="submit" class="btn btn-info ms-1">Edit</button></a>
+                       <a href="{% url 'zfeng:delete' i.todo_name %}"><button type="submit" class="btn btn-danger">Delete</button></a>
+                        <a href="{% url 'zfeng:update' i.todo_name %}"><button type="submit" class="btn btn-success ms-1">Finished</button></a>
+                        <a href="{% url 'zfeng:task-detail' i.todo_name %}"><button type="submit" class="btn btn-info ms-1">Edit</button></a>
                       </td>
                     </tr>
                     {% endif %}
