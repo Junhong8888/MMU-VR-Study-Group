@@ -1,0 +1,100 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex min-vh-100">
+
+  <!-- Sidebar -->
+  <div class="sidebar d-flex flex-column p-3 text-white" style="width: 250px; background-color: #212529;">
+    <h4 class="text-white">MMU-VR</h4>
+    <nav class="nav flex-column mb-auto">
+      <a class="nav-link text-white active" href="#">Home</a>
+      <a class="nav-link text-white" href="#">Dashboard</a>
+      <a class="nav-link text-white" href="#">Products</a>
+      <a class="nav-link text-white" href="/dashboard/reports">Reports</a>
+      <a class="nav-link text-white" href="#">About</a>
+    </nav>
+    <div class="sidebar-footer mt-auto d-flex align-items-center border-top border-secondary pt-3">
+      <img src="https://via.placeholder.com/32" class="rounded-circle me-2" alt="mdo">
+      <span>mdo ▼</span>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="flex-grow-1 d-flex flex-column">
+
+    <!-- Dashboard content -->
+    <div class="content-area p-4 bg-light flex-grow-1">
+      <h1>Dashboard</h1>
+      <div class="row mt-4">
+        <div class="col-md-4">
+          <div class="card p-3 mb-3">
+            <div class="card-body">
+              <h6 class="card-title text-primary">Total Users</h6>
+              <p class="card-subtitle text-muted">Yearly</p>
+              <p class="card-value fs-4 fw-bold">5,000,008</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card p-3 mb-3">
+            <div class="card-body">
+              <h6 class="card-title text-primary">Hours Used/Day</h6>
+              <p class="card-subtitle text-muted">Hour</p>
+              <p class="card-value fs-4 fw-bold">260Hr</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card p-3 mb-3">
+            <div class="card-body">
+              <h6 class="card-title text-primary">Student's Usage</h6>
+              <p class="card-subtitle text-muted">Daily</p>
+              <p class="card-value fs-4 fw-bold text-success">>79%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart section -->
+      <div class="card p-3">
+        <div class="card-body">
+          <h6 class="card-title text-primary">Monthly Student Activities</h6>
+          <canvas id="revenueChart" width="400" height="200"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block scripts %}
+<script src="{% static 'assets/js/index.js' %}"></script>
+
+<!-- Inline Chart.js for demo -->
+<script>
+  const ctx = document.getElementById('revenueChart').getContext('2d');
+  const revenueChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+          datasets: [{
+              label: 'Hours',
+              data: [1200, 1900, 3000, 2500],
+              backgroundColor: 'rgba(255, 206, 86, 0.6)',
+              borderColor: 'rgba(255, 206, 86, 1)',
+              borderWidth: 1
+          }]
+      },
+      options: {
+          responsive: true,
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+  });
+</script>
+{% endblock scripts %}
