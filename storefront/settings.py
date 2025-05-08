@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'chat',
     'channels',
     'test',
+    'zfeng',
 ]
 
 MIDDLEWARE = [
