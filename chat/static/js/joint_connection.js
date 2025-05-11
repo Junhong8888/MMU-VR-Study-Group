@@ -1,73 +1,99 @@
 
-import { addConnectionStateHandler, waitForAllICE } from './main.js';
-console.log("\n".repeat(10));
+import { addConnectionStateHandler } from './main.js';
 
 let socket;
 let localStream;
+let peerConnection;
+let dataChannel;
 
 async function start(username) {
+    // Get local media first
     localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    document.getElementById('localVideo').srcObject = localStream;
 
-    const localVideo = document.getElementById('localVideo');
-    if (localVideo) localVideo.srcObject = localStream;
-
+    // Setup WebSocket
     socket = new WebSocket("ws://" + window.location.host + "/ws/chat/testchannel/");
-
     socket.onopen = () => console.log("WebSocket connection established.");
 
-    socket.onmessage = (e) => {
+    // Setup peer connection AFTER getting media
+    setupPeerConnection(username);
+
+    // Handle incoming WebSocket messages
+    socket.onmessage = async (e) => {
+        console.log("WebSocket message received:", e.data); // Add logging here
         const data = JSON.parse(e.data);
+    
         if (data.type === "sdp") {
-            handleSDP(data.sdp, username);
+            const sdp = new RTCSessionDescription(data.sdp);
+            if (sdp.type === "offer" && username === "callee") {
+                console.log("Received offer from caller.");
+                await peerConnection.setRemoteDescription(sdp);
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                socket.send(JSON.stringify({ type: "sdp", sdp: peerConnection.localDescription }));
+            } else if (sdp.type === "answer" && username === "caller") {
+                console.log("Received answer from callee.");
+                await peerConnection.setRemoteDescription(sdp);
+            }
+        } else if (data.type === "ice") {
+            try {
+                await peerConnection.addIceCandidate(data.candidate);
+            } catch (err) {
+                console.error("Error adding ICE candidate", err);
+            }
         } else if (data.type === "chat") {
             console.log("Received chat message:", data.message);
         }
     };
 
-    const [peerConnection, dataChannel] = initializeBeforeCreatingOffer(username);
-    attachStreamToPeerConnection(peerConnection, localStream);
-
-    withPerfectNegociationHandler(async sessionDescriptionProtocol => {
-        if (sessionDescriptionProtocol.type === "offer") {
-            await beCallee(sessionDescriptionProtocol, peerConnection, username, dataChannel);
-        } else {
-            await beCaller(sessionDescriptionProtocol, peerConnection, dataChannel);
-        }
-    }, peerConnection, username, dataChannel);
-
-    firstNegotiationNeededEvent(peerConnection, dataChannel);
-
-    if (username === "impolite") {
-        await sleep(5000);
-        secondNegotiationNeededEvent(peerConnection);
+    // Caller starts the offer
+    if (username === "caller") {
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        socket.send(JSON.stringify({ type: "sdp", sdp: peerConnection.localDescription }));
     }
 }
 
-function attachStreamToPeerConnection(peerConnection, stream) {
-    for (const track of stream.getTracks()) {
-        peerConnection.obj.addTrack(track, stream);
-    }
-}
+function setupPeerConnection(username) {
+    peerConnection = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+    });
 
-function initializeBeforeCreatingOffer(username) {
-    const peerConnection = { obj: initializeRTCPeerConnection(username) };
-    const dataChannel = { obj: null };
-    return [peerConnection, dataChannel];
-}
+    addConnectionStateHandler(peerConnection, username);
 
-function initializeRTCPeerConnection(username) {
-    const peerConnection = new RTCPeerConnection();
-    common.addConnectionStateHandler(peerConnection, username);
-    peerConnection.ontrack = (ev) => {
-        const remoteVideo = document.getElementById('remoteVideo');
+    // Add local tracks
+    localStream.getTracks().forEach(track => {
+        peerConnection.addTrack(track, localStream);
+    });
+
+    // Receive remote track
+    peerConnection.ontrack = (event) => {
+        console.log("Remote track received:", event); // Log remote track
+        const remoteVideo = document.getElementById("remoteVideo");
         if (remoteVideo) {
-            const [stream] = ev.streams;
-            remoteVideo.srcObject = stream;
+            remoteVideo.srcObject = event.streams[0]; // Attach the remote stream
         }
-        console.log("Received remote track");
     };
-    return peerConnection;
+
+    // Send ICE candidates
+    peerConnection.onicecandidate = event => {
+        if (event.candidate) {
+            console.log("Sending ICE candidate:", event.candidate); // Log ICE candidate
+            socket.send(JSON.stringify({ type: "ice", candidate: event.candidate }));
+        }
+    };
+
+    // Optional: data channel (only caller creates it)
+    if (username === "caller") {
+        dataChannel = peerConnection.createDataChannel("chat");
+    } else {
+        peerConnection.ondatachannel = event => {
+            dataChannel = event.channel;
+        };
+    }
 }
+
+export { start };
 
 
 

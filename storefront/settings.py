@@ -39,13 +39,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'playground',
-    'debug_toolbar',
     'users',
     'grouping',
     'chat',
     'channels',
-    'test',
+
     'zfeng',
+    'debug_toolbar',
 ]
 
 MIDDLEWARE = [

@@ -26,6 +26,6 @@ urlpatterns = [
     path('users/',include('users.urls')),
     path('chat/',include('chat.urls')),
     path('grouping/',include('grouping.urls')),
-    path('test/',include('test.urls')),
+    #path('test/',include('test.urls')),
     path('zfeng/',include('zfeng.urls')),
 ] 

@@ -19,7 +19,7 @@ def home(request):
     context = {
         'todos': all_todos
     }
-    return render(request, 'todoapp/todo.html', context)
+    return render(request, 'todo.html', context)
 
 def register(request):
     if request.user.is_authenticated:

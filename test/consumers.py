@@ -1,3 +1,4 @@
+'''
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 
@@ -42,3 +43,4 @@ class ChatConsumers(AsyncWebsocketConsumer):
         receive_dict = event["receive_dict"]
 
         await self.send(text_data=json.dumps(receive_dict))    
+        '''

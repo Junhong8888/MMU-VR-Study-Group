@@ -6,10 +6,10 @@ name = "pypi"
 [packages]
 mysqlclient = "*"
 daphne = "*"
-django-debug-toolbar = "*"
 channels = {extras = ["daphane"], version = "*"}
 mysql-connector-python = "*"
 django = "*"
+django-debug-toolbar = "*"
 
 [dev-packages]
 
