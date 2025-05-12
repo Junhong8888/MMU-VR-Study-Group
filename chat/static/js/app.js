@@ -1,5 +1,6 @@
 const toggleButton = document.getElementById('toggle-btn')
 const sidebar = document.getElementById('sidebar')
+const toggleLogin = document.getElementById('toggle-login')
 
 function toggleSidebar(){
     sidebar.classList.toggle('close')
@@ -27,3 +28,4 @@ function closeAllSubMenus(){
             ul.previousElementSibling.classList.remove('rotate')
         })
 }
+

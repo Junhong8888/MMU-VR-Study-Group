@@ -71,14 +71,14 @@ def loginpage(request):
 def DeleteTask(request, name):
     get_todo = todo.objects.get(user=request.user, todo_name=name)
     get_todo.delete()
-    return redirect('home-page')
+    return redirect('todolist')
 
 
 def Update(request, name):
     get_todo = todo.objects.get(user=request.user, todo_name=name)
     get_todo.status = True
     get_todo.save()
-    return redirect('home-page')
+    return redirect('todolist')
 
 def TaskDetail(request, name):
     task = todo.objects.get(user=request.user, todo_name=name)
@@ -87,7 +87,7 @@ def TaskDetail(request, name):
         form = TodoForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
-            return redirect('home-page')
+            return redirect('todolist')
     else:
         form = TodoForm(instance=task)
 
