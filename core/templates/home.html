@@ -1,0 +1,182 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MMU-VR | Virtual Reality Hub</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: #fff;
+      color: #333;
+    }
+
+    .layout-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: #222;
+      color: white;
+      min-height: 100vh;
+    }
+
+    .navbar {
+      background: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: #222;
+    }
+
+    .logo span {
+      color: #f26822;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 25px;
+    }
+
+    .nav-links li a {
+      text-decoration: none;
+      color: #444;
+      font-weight: 500;
+    }
+
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      padding: 60px 80px;
+      background: #fff3e6;
+    }
+
+    .hero-text {
+      max-width: 600px;
+    }
+
+    .hero-text h2 {
+      font-size: 40px;
+      color: #1a1a1a;
+      margin-bottom: 20px;
+    }
+
+    .hero-text p {
+      font-size: 18px;
+      color: #444;
+      margin-bottom: 30px;
+    }
+
+    .charts-section {
+      background: #f9f9f9;
+      padding: 60px 40px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+    }
+
+    .chart-box {
+      width: 300px;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: #f8f8f8;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout-container">
+
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column p-3 text-white" style="width: 250px;">
+      <h4 class="text-white">MMU-VR</h4>
+      <nav class="nav flex-column mb-auto">
+        <a class="nav-link text-white active" href="/dashboard/home">Home</a>
+        <a class="nav-link text-white" href="/dashboard">Dashboard</a>
+        <a class="nav-link text-white" href="#">Products</a>
+        <a class="nav-link text-white" href="/dashboard/reports">Reports</a>
+        <a class="nav-link text-white" href="#">About</a>
+      </nav>
+      <div class="sidebar-footer mt-auto d-flex align-items-center border-top border-secondary pt-3">
+        <img src="https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?cs=srgb&dl=pexels-jplenio-1103970.jpg&fm=jpg" class="rounded-circle me-2" alt="mdo" width="32" height="32">
+        <span>mdo ▼</span>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div style="flex: 1; display: flex; flex-direction: column;">
+      <header class="navbar">
+        <h1 class="logo">MMU<span>VR</span></h1>
+        <ul class="nav-links">
+        </ul>
+      </header>
+
+      <section class="hero">
+        <div class="hero-text">
+          <h2>Explore the Future with MMU-VR</h2>
+          <p>Cutting-edge VR research and experiences at MMU. Collaborate, learn, and innovate in immersive virtual spaces.</p>
+        </div>
+        <img src="https://via.placeholder.com/400x300" alt="VR Illustration" />
+      </section>
+
+      <section class="charts-section">
+        <div class="chart-box">
+          <h3>Weekly Activity</h3>
+          <svg width="260" height="160">
+            <rect x="20" y="80" width="40" height="60" fill="#f26822" />
+            <rect x="80" y="40" width="40" height="100" fill="#f26822" />
+            <rect x="140" y="60" width="40" height="80" fill="#f26822" />
+            <text x="20" y="150" font-size="12">Emails</text>
+            <text x="80" y="150" font-size="12">Calls</text>
+            <text x="140" y="150" font-size="12">Meetings</text>
+          </svg>
+        </div>
+
+        <div class="chart-box">
+          <h3>Research Focus</h3>
+          <svg viewBox="0 0 32 32" width="160" height="160">
+            <circle r="16" cx="16" cy="16" fill="#eee" />
+            <circle r="16" cx="16" cy="16" fill="transparent" stroke="#f26822" stroke-width="32" stroke-dasharray="25 75" transform="rotate(-90) translate(-32)" />
+            <circle r="16" cx="16" cy="16" fill="transparent" stroke="#ffaa66" stroke-width="32" stroke-dasharray="25 75" transform="rotate(0) translate(0)" />
+            <circle r="16" cx="16" cy="16" fill="transparent" stroke="#fcb860" stroke-width="32" stroke-dasharray="25 75" transform="rotate(90) translate(0)" />
+          </svg>
+        </div>
+      </section>
+
+      <footer>
+        &copy; 2025 MMU-VR. All rights reserved.
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
+{% endblock %}

@@ -2,20 +2,43 @@
 {% load static %}
 
 {% block content %}
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url('https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?cs=srgb&dl=pexels-jplenio-1103970.jpg&fm=jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+  }
+
+  .content-area {
+    background-color: rgba(255, 255, 255, 0.9); /* make content readable */
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem;
+  }
+
+  .sidebar {
+    background-color: rgba(33, 37, 41, 0.95);
+    min-height: 100vh;
+  }
+</style>
+
 <div class="d-flex min-vh-100">
 
   <!-- Sidebar -->
-  <div class="sidebar d-flex flex-column p-3 text-white" style="width: 250px; background-color: #212529;">
+  <div class="sidebar d-flex flex-column p-3 text-white" style="width: 250px;">
     <h4 class="text-white">MMU-VR</h4>
     <nav class="nav flex-column mb-auto">
-      <a class="nav-link text-white active" href="#">Home</a>
+      <a class="nav-link text-white active" href="/dashboard/home">Home</a>
       <a class="nav-link text-white" href="#">Dashboard</a>
       <a class="nav-link text-white" href="#">Products</a>
       <a class="nav-link text-white" href="/dashboard/reports">Reports</a>
       <a class="nav-link text-white" href="#">About</a>
     </nav>
     <div class="sidebar-footer mt-auto d-flex align-items-center border-top border-secondary pt-3">
-      <img src="https://via.placeholder.com/32" class="rounded-circle me-2" alt="mdo">
+      <img src="https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?cs=srgb&dl=pexels-jplenio-1103970.jpg&fm=jpg" class="rounded-circle me-2" alt="mdo">
       <span>mdo ▼</span>
     </div>
   </div>
@@ -31,8 +54,8 @@
           <div class="card p-3 mb-3">
             <div class="card-body">
               <h6 class="card-title text-primary">Total Users</h6>
-              <p class="card-subtitle text-muted">Yearly</p>
-              <p class="card-value fs-4 fw-bold">5,000,008</p>
+              <p class="card-subtitle">Yearly</p>
+              <p class="card-value fw-bold">5,000,008</p>
             </div>
           </div>
         </div>
@@ -40,8 +63,8 @@
           <div class="card p-3 mb-3">
             <div class="card-body">
               <h6 class="card-title text-primary">Hours Used/Day</h6>
-              <p class="card-subtitle text-muted">Hour</p>
-              <p class="card-value fs-4 fw-bold">260Hr</p>
+              <p class="card-subtitle">Hour</p>
+              <p class="card-value fw-bold">260Hr</p>
             </div>
           </div>
         </div>
@@ -49,8 +72,8 @@
           <div class="card p-3 mb-3">
             <div class="card-body">
               <h6 class="card-title text-primary">Student's Usage</h6>
-              <p class="card-subtitle text-muted">Daily</p>
-              <p class="card-value fs-4 fw-bold text-success">>79%</p>
+              <p class="card-subtitle">Daily</p>
+              <p class="card-value fw-bold text-success">>79%</p>
             </div>
           </div>
         </div>
@@ -76,25 +99,25 @@
 <script>
   const ctx = document.getElementById('revenueChart').getContext('2d');
   const revenueChart = new Chart(ctx, {
-      type: 'bar',
-      data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-          datasets: [{
-              label: 'Hours',
-              data: [1200, 1900, 3000, 2500],
-              backgroundColor: 'rgba(255, 206, 86, 0.6)',
-              borderColor: 'rgba(255, 206, 86, 1)',
-              borderWidth: 1
-          }]
-      },
-      options: {
-          responsive: true,
-          scales: {
-              y: {
-                  beginAtZero: true
-              }
-          }
+    type: 'bar',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+      datasets: [{
+        label: 'Hours',
+        data: [1200, 1900, 3000, 2500],
+        backgroundColor: 'rgba(255, 206, 86, 0.6)',
+        borderColor: 'rgba(255, 206, 86, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
       }
+    }
   });
 </script>
 {% endblock scripts %}
