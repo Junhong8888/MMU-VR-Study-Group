@@ -5,7 +5,7 @@ from .forms import SignUpForm
 
 # Create your views here.
 def home(request):
-    return render(request,'sidebar.html')
+    return render(request,'test.html')
 
 def login_signup(request):
     signup_form = SignUpForm()  
@@ -37,5 +37,9 @@ def login_signup(request):
 
 def main(request):
     return render(request,'main.html')
+
+def user_logout(request):
+    logout(request)
+    return redirect('home')
 
 

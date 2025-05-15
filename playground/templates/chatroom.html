@@ -30,6 +30,43 @@
         #chat-container label {
             margin-top: 0 !important; /* Ensure label isn't pushing down */
         }
+
+        .button-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            height: 70px;
+            background-color: #333;
+        }
+
+
+        #video-btn, #audio-btn {
+            width: 60px; /* Set equal width */
+            height: 60px; /* Set equal height */
+            border-radius: 50%; /* Make it circular */
+            border: none; /* Remove border */
+            background-color: #222533; /* Button background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0.5em; /* Adjust spacing between buttons */
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Add shadow */
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth hover effect */
+            overflow: hidden; 
+        }
+
+        #video-btn svg, #audio-btn svg {
+            fill: #e3e3e3; /* Icon color */
+            width: 50%; /* Scale icon size relative to the button */
+            height: 50%; /* Scale icon size relative to the button */
+        }
+
+        /* Hover effect */
+        #video-btn:hover, #audio-btn:hover {
+            transform: scale(1.1); /* Slightly enlarge on hover */
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+        }
     </style>
     <title>Hello, world!</title>
   </head>
@@ -58,12 +95,64 @@
         </form>
     </div>
 
+    <div class="button-container">
+    <button id="video-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
+            <path d="M0 0h24v24H0V0z" fill="none"/>
+            <path d="M17 10.5V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4.5l4 4V6.5l-4 4z"/>
+        </svg>
+    </button>
+    <button id="audio-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
+            <path d="M0 0h24v24H0V0z" fill="none"/>
+            <path d="M12 3v10.55A4 4 0 1014 17V4h4V3h-6z"/>
+        </svg>
+    </button>
+</div>
+
     {{ room_name|json_script:"room-name" }}
     {{ request.user.username|json_script:"user_username" }}
 
     <script>
     const user_username = JSON.parse(document.getElementById('user_username').textContent);
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
+        
+        let videoEnabled = true;
+        let audioEnabled = true;
+
+        // Toggle Video
+        document.getElementById('video-btn').addEventListener('click', () => {
+            if (localStream) {
+                localStream.getVideoTracks().forEach(track => {
+                    track.enabled = !track.enabled;
+                });
+                videoEnabled = !videoEnabled;
+
+                // Update button text
+                document.getElementById('video-btn').textContent = videoEnabled ? 'Turn Video Off' : 'Turn Video On';
+                console.log(`Video ${videoEnabled ? 'enabled' : 'disabled'}`);
+            } else {
+                console.warn('Local stream not found.');
+            }
+        });
+
+        // Toggle Audio
+        document.getElementById('audio-btn').addEventListener('click', () => {
+            if (localStream) {
+                localStream.getAudioTracks().forEach(track => {
+                    track.enabled = !track.enabled;
+                });
+                audioEnabled = !audioEnabled;
+
+                // Update button text
+                document.getElementById('audio-btn').textContent = audioEnabled ? 'Turn Audio Off' : 'Turn Audio On';
+                console.log(`Audio ${audioEnabled ? 'enabled' : 'disabled'}`);
+            } else {
+                console.warn('Local stream not found.');
+            }
+        });
+
+
 
         // WebSocket connection
         let chatSocket;

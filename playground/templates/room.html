@@ -1,13 +1,20 @@
-{% extends 'base.html' %}
+{% extends 'test.html' %}
+{% load static %}
 
-{% block navbar_buttons %}
 
-    <button id="create_group_Tab" class="active" onclick="switchTab('create')">Create</button>
-    <button id="join_group_Tab" onclick="switchTab('join')">Join</button>
+{% block navbar %}
+    <div class="navbar">
+    <div class="brand-title">MMU VR Group</div>
+    <div>
+    <a href="{% url 'join_group' %}">Join Group</a>
+    </div>
+</div>
 
 {% endblock %}
 
+  
 {% block content %}
+<body>
 <div class="container">
   <!-- Create Room Form -->
   <form method="POST" action="{% url 'create_room' %}" id="createForm" class="active">
@@ -42,7 +49,7 @@
 
     <form method="POST" action="{% url 'group' %}" id="joinForm" style="display: none;">
         {% csrf_token %}
-        
+        {{form.as_p}}
         <!-- Group Code -->
         <div class="form-group">
             <label class="col-form-label">Group Code</label>
@@ -53,6 +60,7 @@
         <button type="submit" class="btn btn-primary">Join</button>
     </form>
 </div>
+</body>
 {% endblock %}
 
 {% block extra_scripts %}

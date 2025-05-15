@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'grouping',
     'chat',
     'channels',
-
+    'dashboard',
     'zfeng',
     'debug_toolbar',
 ]

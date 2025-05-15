@@ -28,4 +28,5 @@ urlpatterns = [
     path('grouping/',include('grouping.urls')),
     #path('test/',include('test.urls')),
     path('zfeng/',include('zfeng.urls')),
+    path('dashboard/',include('dashboard.urls')),
 ] 

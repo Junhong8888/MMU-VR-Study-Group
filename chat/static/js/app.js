@@ -1,8 +1,9 @@
-const toggleButton = document.getElementById('toggle-btn')
-const sidebar = document.getElementById('sidebar')
-const toggleLogin = document.getElementById('toggle-login')
+    const toggleButton = document.getElementById('toggle-btn')
+    const sidebar = document.getElementById('sidebar')
+    const toggleLogin = document.getElementById('toggle-login')
 
-function toggleSidebar(){
+
+    function toggleSidebar(){
     sidebar.classList.toggle('close')
     toggleButton.classList.toggle('rotate')
 
