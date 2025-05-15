@@ -1,123 +1,183 @@
-{% extends "layouts/base.html" %}
-{% load static %}
-
-{% block content %}
-<style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-image: url('https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?cs=srgb&dl=pexels-jplenio-1103970.jpg&fm=jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    min-height: 100vh;
-  }
-
-  .content-area {
-    background-color: rgba(255, 255, 255, 0.9); /* make content readable */
-    border-radius: 12px;
-    padding: 2rem;
-    margin: 2rem;
-  }
-
-  .sidebar {
-    background-color: rgba(33, 37, 41, 0.95);
-    min-height: 100vh;
-  }
-</style>
-
-<div class="d-flex min-vh-100">
-
-  <!-- Sidebar -->
-  <div class="sidebar d-flex flex-column p-3 text-white" style="width: 250px;">
-    <h4 class="text-white">MMU-VR</h4>
-    <nav class="nav flex-column mb-auto">
-      <a class="nav-link text-white active" href="/dashboard/home">Home</a>
-      <a class="nav-link text-white" href="#">Dashboard</a>
-      <a class="nav-link text-white" href="#">Products</a>
-      <a class="nav-link text-white" href="/dashboard/reports">Reports</a>
-      <a class="nav-link text-white" href="#">About</a>
-    </nav>
-    <div class="sidebar-footer mt-auto d-flex align-items-center border-top border-secondary pt-3">
-      <img src="https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?cs=srgb&dl=pexels-jplenio-1103970.jpg&fm=jpg" class="rounded-circle me-2" alt="mdo">
-      <span>mdo ▼</span>
-    </div>
-  </div>
-
-  <!-- Main content -->
-  <div class="flex-grow-1 d-flex flex-column">
-
-    <!-- Dashboard content -->
-    <div class="content-area p-4 bg-light flex-grow-1">
-      <h1>Dashboard</h1>
-      <div class="row mt-4">
-        <div class="col-md-4">
-          <div class="card p-3 mb-3">
-            <div class="card-body">
-              <h6 class="card-title text-primary">Total Users</h6>
-              <p class="card-subtitle">Yearly</p>
-              <p class="card-value fw-bold">5,000,008</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card p-3 mb-3">
-            <div class="card-body">
-              <h6 class="card-title text-primary">Hours Used/Day</h6>
-              <p class="card-subtitle">Hour</p>
-              <p class="card-value fw-bold">260Hr</p>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card p-3 mb-3">
-            <div class="card-body">
-              <h6 class="card-title text-primary">Student's Usage</h6>
-              <p class="card-subtitle">Daily</p>
-              <p class="card-value fw-bold text-success">>79%</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chart section -->
-      <div class="card p-3">
-        <div class="card-body">
-          <h6 class="card-title text-primary">Monthly Student Activities</h6>
-          <canvas id="revenueChart" width="400" height="200"></canvas>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
-{% endblock content %}
-
-{% block scripts %}
-<script src="{% static 'assets/js/index.js' %}"></script>
-
-<!-- Inline Chart.js for demo -->
-<script>
-  const ctx = document.getElementById('revenueChart').getContext('2d');
-  const revenueChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-      datasets: [{
-        label: 'Hours',
-        data: [1200, 1900, 3000, 2500],
-        backgroundColor: 'rgba(255, 206, 86, 0.6)',
-        borderColor: 'rgba(255, 206, 86, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MMU-VR Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-  });
-</script>
-{% endblock scripts %}
+
+    html, body {
+      height: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #2c3e50, #4ca1af);
+    }
+
+    .layout-container {
+      display: flex;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar h2 {
+      margin-bottom: 20px;
+    }
+
+    .nav-links {
+      list-style-type: none;
+    }
+
+    .nav-links li {
+      margin: 15px 0;
+    }
+
+    .nav-links button {
+      width: 100%;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: transparent;
+      color: white;
+      text-align: left;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .nav-links button:hover {
+      background-color: #f39c12;
+      color: black;
+    }
+
+    .main-content {
+      flex-grow: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .dashboard-cards {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .card-box {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 15px;
+      flex: 1 1 300px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-box h3 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .card-box p {
+      font-size: 16px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    canvas {
+      margin-top: 20px;
+      max-width: 100%;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    function goTo(url) {
+      window.location.href = url;
+    }
+
+    window.onload = function () {
+      const ctx = document.getElementById('usageChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+          datasets: [{
+            label: 'Hours',
+            data: [1200, 1900, 3000, 2500],
+            backgroundColor: 'rgba(255, 206, 86, 0.6)',
+            borderColor: 'rgba(255, 206, 86, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    };
+  </script>
+</head>
+<body>
+  <div class="layout-container">
+    <div class="sidebar">
+      <div>
+        <h2>MMU-VR</h2>
+        <ul class="nav-links">
+          <li><button onclick="goTo('/dashboard/home')">Home</button></li>
+          <li><button onclick="goTo('/dashboard')">Dashboard</button></li>
+          <li><button onclick="goTo('/dashboard/reports')">Reports</button></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="header">
+        <h1><strong>MMU</strong><span style="color: orange;">VR</span> Dashboard</h1>
+      </div>
+
+      <div class="dashboard-cards">
+        <div class="card-box">
+          <h3>Total Users</h3>
+          <p>5,000,008</p>
+        </div>
+
+        <div class="card-box">
+          <h3>Hours Used Today</h3>
+          <p>{{ hours_today }} hours</p>
+        </div>
+
+        <div class="card-box">
+          <h3>Student's Usage</h3>
+          <p style="color: green;">>79%</p>
+        </div>
+      </div>
+
+      <div class="card-box" style="margin-top: 30px;">
+        <h3>Monthly Student Activities</h3>
+        <canvas id="usageChart" width="400" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
