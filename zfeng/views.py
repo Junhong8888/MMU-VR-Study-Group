@@ -93,6 +93,5 @@ def TaskDetail(request, name):
 
     return render(request, 'task_detail.html', {'form': form, 'task': task})
 
-def reset_password(request):
-    return render(request, 'reset_password.html') 
+
 

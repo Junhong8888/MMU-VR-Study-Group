@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<h2>Workspace: {{ workspace.roomname }}</h2>
+
+<form method="POST">
+  {% csrf_token %}
+  <input type="text" name="task" placeholder="New task..." required>
+  <button type="submit">Add Task</button>
+</form>
+
+<ul>
+  {% for task in tasks %}
+    <li>{{ task.todo_name }} {% if task.status %}✅{% else %}❌{% endif %}</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

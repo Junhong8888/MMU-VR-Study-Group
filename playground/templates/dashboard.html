@@ -1,4 +1,4 @@
-
+{% extends "layout.html" %}
 {% load static %}
 
 {% block content %}
@@ -34,7 +34,7 @@
       <a class="nav-link text-white active" href="/dashboard/home">Home</a>
       <a class="nav-link text-white" href="#">Dashboard</a>
       <a class="nav-link text-white" href="#">Products</a>
-      <a class="nav-link text-white" href="/dashboard/reports">Reports</a>
+      <a class="nav-link text-white" href="{% url 'reports' %}">Reports</a>
       <a class="nav-link text-white" href="#">About</a>
     </nav>
     <div class="sidebar-footer mt-auto d-flex align-items-center border-top border-secondary pt-3">
@@ -61,19 +61,18 @@
         </div>
         <div class="col-md-4">
           <div class="card p-3 mb-3">
-            <div class="card-body">
-              <h6 class="card-title text-primary">Hours Used/Day</h6>
-              <p class="card-subtitle">Hour</p>
-              <p class="card-value fw-bold">260Hr</p>
-            </div>
+            <div class="card-box">
+          <h3>Hours Used Today</h3>
+          <p>{{ hours_today }} hours</p>
+        </div>
           </div>
         </div>
         <div class="col-md-4">
           <div class="card p-3 mb-3">
             <div class="card-body">
-              <h6 class="card-title text-primary">Student's Usage</h6>
-              <p class="card-subtitle">Daily</p>
-              <p class="card-value fw-bold text-success">>79%</p>
+              <h6 class="card-title text-primary">Total Task</h6>
+              <p class="card-subtitle"></p>
+              <h7>{{ task_count }}</h7>
             </div>
           </div>
         </div>
