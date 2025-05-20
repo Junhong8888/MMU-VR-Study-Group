@@ -91,6 +91,7 @@ def workspace(request, room_id):
 @login_required
 def workspace(request, Room_join_code):
     workspace = get_object_or_404(Room, join_code=Room_join_code)
+    user_rooms = Room.objects.filter(members=request.user)
 
     # Ensure the user is part of the room
     if not (request.user == workspace.host or request.user in workspace.members.all()):
@@ -111,7 +112,8 @@ def workspace(request, Room_join_code):
 
     return render(request, "workspace.html", {
         "workspace": workspace,
-        "tasks": tasks
+        "tasks": tasks,
+        "user_rooms":user_rooms,
     })
 
 

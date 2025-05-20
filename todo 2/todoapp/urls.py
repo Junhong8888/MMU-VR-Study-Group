@@ -1,6 +1,9 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
+
+app_name = "todo2"
+
 urlpatterns = [
     path('', views.home, name='home-page'),
     path('register/', views.register, name='register'),

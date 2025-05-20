@@ -78,10 +78,10 @@ body {
     } 
 
     #sidebar ul li.active a{
-        color: var(--accent-clr);
+        color: var(--icon-clr);
 
         svg {
-            fill: var(--accent-clr);
+            fill:var(--icon-color);
         }
     }
 

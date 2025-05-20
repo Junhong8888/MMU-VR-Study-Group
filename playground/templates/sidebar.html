@@ -8,6 +8,7 @@
     <title>Sidebar</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script type="text/javascript" src="{% static 'js/app.js' %}"  defer></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
 </head>
 {% block head %}
 {% endblock %}
@@ -41,9 +42,12 @@
                 </button>
             <ul class="sub-menu">
                 <div>
-                <li><a href ="{% url 'group' %}">Group A</a></li>
-                <li><a href ="#"></a></li>
-                <li><a href ="#"></a></li>
+                <li><a href ="{% url 'group' %}">Create/Join</a></li>
+                 {% for room in user_rooms %}
+                    <li><a href="{% url 'workspace' Room_join_code=room_join_code %}">{{ room.roomname }}</a></li>
+                {% empty %}
+                    <li>No workspaces joined yet.</li>
+                {% endfor %}
                 </div>
             </ul>
             </li>

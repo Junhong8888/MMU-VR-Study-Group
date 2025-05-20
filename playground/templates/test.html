@@ -13,7 +13,7 @@
   <div class="navbar">
     <div class="brand-title">MMU VR Group</div>
     <div class="nav-links">
-      <a href="#">To-Do List</a>
+      <a href="{% todo2:home-page}">To-Do List</a>
       <a href="#">Test</a>
       <a href="{% url 'login_signup' %}">Login</a>
     </div>
@@ -21,7 +21,8 @@
   {% endblock %}
 
   {% block sidebar %}
-  <nav id="sidebar">
+  <div class="layout">
+    <nav id="sidebar">
         <ul>
             <li>
                 <span class="logo">MMU VR Study Group</span>
@@ -30,8 +31,8 @@
                 </button>
             </li>
             <li class="active">
-                <a href="#index.html">
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v560q0 33-23.5 56.5T760-80H200Zm0-80h560v-400H200v400Zm0-480h560v-80H200v80Zm0 0v-80 80Zm280 240q-17 0-28.5-11.5T440-440q0-17 11.5-28.5T480-480q17 0 28.5 11.5T520-440q0 17-11.5 28.5T480-400Zm-160 0q-17 0-28.5-11.5T280-440q0-17 11.5-28.5T320-480q17 0 28.5 11.5T360-440q0 17-11.5 28.5T320-400Zm320 0q-17 0-28.5-11.5T600-440q0-17 11.5-28.5T640-480q17 0 28.5 11.5T680-440q0 17-11.5 28.5T640-400ZM480-240q-17 0-28.5-11.5T440-280q0-17 11.5-28.5T480-320q17 0 28.5 11.5T520-280q0 17-11.5 28.5T480-240Zm-160 0q-17 0-28.5-11.5T280-280q0-17 11.5-28.5T320-320q17 0 28.5 11.5T360-280q0 17-11.5 28.5T320-240Zm320 0q-17 0-28.5-11.5T600-280q0-17 11.5-28.5T640-320q17 0 28.5 11.5T680-280q0 17-11.5 28.5T640-240Z"/></svg>
+                <a href="{% url 'zfeng:todolist' %}">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3" ><path d="M240-200h120v-240h240v240h120v-360L480-740 240-560v360Zm-80 80v-480l320-240 320 240v480H520v-240h-80v240H160Zm320-350Z"/></svg>
                 <span>Home</span>
                 </a>
             </li>
@@ -49,9 +50,14 @@
                 </button>
             <ul class="sub-menu">
                 <div>
-                <li><a href ="{% url 'group' %}">Group A</a></li>
-                <li><a href ="#"></a></li>
-                <li><a href ="#"></a></li>
+                <li><a href ="{% url 'group' %}">Create/Join</a></li>
+                {% for room in user_rooms %}
+                    {% if room.join_code %}
+                        <li><a href="{% url 'workspace' Room_join_code=room.join_code %}">{{ room.roomname }}</a></li>
+                    {% endif %}
+                {% empty %}
+                    <li>No workspaces joined yet.</li>
+                {% endfor %}
                 </div>
             </ul>
             </li>
@@ -77,6 +83,7 @@
             </li>
             {% endif %}
         </ul>
+      </div>
     </nav>
   {% endblock %}  
 
