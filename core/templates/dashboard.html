@@ -108,21 +108,17 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    function goTo(url) {
-      window.location.href = url;
-    }
-
     window.onload = function () {
       const ctx = document.getElementById('usageChart').getContext('2d');
       new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr'],
+          labels: {{ chart_labels|safe }},
           datasets: [{
-            label: 'Hours',
-            data: [1200, 1900, 3000, 2500],
-            backgroundColor: 'rgba(255, 206, 86, 0.6)',
-            borderColor: 'rgba(255, 206, 86, 1)',
+            label: 'New Users',
+            data: {{ chart_data|safe }},
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+            borderColor: 'rgba(54, 162, 235, 1)',
             borderWidth: 1
           }]
         },
@@ -144,9 +140,9 @@
       <div>
         <h2>MMU-VR</h2>
         <ul class="nav-links">
-          <li><button onclick="goTo('/dashboard/home')">Home</button></li>
-          <li><button onclick="goTo('/dashboard')">Dashboard</button></li>
-          <li><button onclick="goTo('/dashboard/reports')">Reports</button></li>
+          <li><button onclick="window.location.href='/dashboard/home'">Home</button></li>
+          <li><button onclick="window.location.href='/dashboard'">Dashboard</button></li>
+          <li><button onclick="window.location.href='/dashboard/reports'">Reports</button></li>
         </ul>
       </div>
     </div>
@@ -158,13 +154,13 @@
 
       <div class="dashboard-cards">
         <div class="card-box">
-          <h3>Total Users</h3>
-          <p>5,000,008</p>
+          <h3>Total Active Users Today</h3>
+          <p>{{ total_users_today }}</p>
         </div>
 
         <div class="card-box">
-          <h3>Hours Used Today</h3>
-          <p>{{ hours_today }} hours</p>
+          <h3>Minutes Used Today</h3>
+          <p>{{ minutes_today }} minutes</p>
         </div>
 
         <div class="card-box">
@@ -174,7 +170,7 @@
       </div>
 
       <div class="card-box" style="margin-top: 30px;">
-        <h3>Monthly Student Activities</h3>
+        <h3>Monthly New User Activity</h3>
         <canvas id="usageChart" width="400" height="200"></canvas>
       </div>
     </div>
