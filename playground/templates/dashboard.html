@@ -1,7 +1,11 @@
 {% extends "test.html" %}
 {% load static %}
+ 
+
 
 {% block content %}
+
+
 <style>
   body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -13,99 +17,110 @@
   }
 
   .content-area {
-    background-color: rgba(255, 255, 255, 0.9); /* make content readable */
+    background-color: rgba(255, 255, 255, 0.9);
     border-radius: 12px;
     padding: 2rem;
     margin: 2rem;
   }
 
-  .sidebar {
-    background-color: rgba(33, 37, 41, 0.95);
-    min-height: 100vh;
+  .main-content {
+    color: black;
   }
-
-  .main-content{
-      color:black;
-  }
-
 </style>
+
+
 <div class="main-content">
   <div class="d-flex min-vh-100">
+    <!-- Main content -->
+    <div class="flex-grow-1 d-flex flex-column">
+      <!-- Dashboard content -->
+      <div class="content-area p-4 bg-light flex-grow-1">
+        <div class="container">
+          <div class="header mb-4">
+            <h1><strong>MMU</strong><span style="color: orange;">VR</span> Dashboard</h1>
+          </div>
 
-  <!-- Main content -->
-  <div class="flex-grow-1 d-flex flex-column">
+          <div class="row">
+            
 
-    <!-- Dashboard content -->
-    <div class="content-area p-4 bg-light flex-grow-1">
-      <h1>Dashboard</h1>
-      <div class="row mt-4">
-        <div class="col-md-4">
-          <div class="card p-3 mb-3">
-            <div class="card-body">
-              <h6 class="card-title text-primary">Total Users</h6>
-              <p class="card-subtitle">Yearly</p>
-              <p class="card-value fw-bold">5,000,008</p>
+            <!-- Total Active Users Today -->
+            <div class="col-md-4">
+              <div class="card p-3 mb-3">
+                <div class="card-body">
+                  <h6 class="card-title text-primary">Total Active Users Today</h6>
+                  <p class="card-value fw-bold">{{ total_users_today }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Minutes Used Today -->
+            <div class="col-md-4">
+              <div class="card p-3 mb-3">
+                <div class="card-body">
+                  <h6 class="card-title text-primary">Minutes Used Today</h6>
+                  <p class="card-value fw-bold">{{ minutes_today }} minutes</p>
+                </div>
+              </div>
+            </div>
+
+
+            <!-- Total Tasks -->
+            <div class="col-md-4">
+              <div class="card p-3 mb-3">
+                <div class="card-body">
+                  <h6 class="card-title text-primary">Total Tasks</h6>
+                  <p class="card-value fw-bold">{{ task_count }}</p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card p-3 mb-3">
-            <div class="card-box">
-          <h3>Hours Used Today</h3>
-          <p>{{ hours_today }} hours</p>
-        </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card p-3 mb-3">
+
+
+          <!-- Second chart (optional) -->
+          <div class="card p-3 mt-4">
             <div class="card-body">
-              <h6 class="card-title text-primary">Total Task</h6>
-              <p class="card-subtitle"></p>
-              <h7>{{ task_count }}</h7>
+              <h6 class="card-title text-primary">Monthly New User Activity</h6>
+              <canvas id="usageChart" width="400" height="200"></canvas>
             </div>
           </div>
+
+             <!-- Chart.js Script and Initialization -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+              const chartLabels = JSON.parse('{{ chart_labels|escapejs }}');
+              const chartData = JSON.parse('{{ chart_data|escapejs }}');
+
+              window.addEventListener('DOMContentLoaded', function () {
+                const ctx = document.getElementById('usageChart').getContext('2d');
+                new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                    labels: chartLabels,
+                    datasets: [{
+                      label: 'New Users',
+                      data: chartData,
+                      backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                      borderColor: 'rgba(54, 162, 235, 1)',
+                      borderWidth: 1
+                    }]
+                  },
+                  options: {
+                    responsive: true,
+                    scales: {
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  }
+                });
+              });
+            </script>
+
         </div>
       </div>
-
-      <!-- Chart section -->
-      <div class="card p-3">
-        <div class="card-body">
-          <h6 class="card-title text-primary">Monthly Student Activities</h6>
-          <canvas id="revenueChart" width="400" height="200"></canvas>
-        </div>
-      </div>
-
     </div>
   </div>
 </div>
+
 {% endblock content %}
 
-{% block scripts %}
-<script src="{% static 'assets/js/index.js' %}"></script>
-
-<!-- Inline Chart.js for demo -->
-<script>
-  const ctx = document.getElementById('revenueChart').getContext('2d');
-  const revenueChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-      datasets: [{
-        label: 'Hours',
-        data: [1200, 1900, 3000, 2500],
-        backgroundColor: 'rgba(255, 206, 86, 0.6)',
-        borderColor: 'rgba(255, 206, 86, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
-</script>
-{% endblock scripts %}

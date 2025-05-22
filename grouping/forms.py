@@ -1,5 +1,6 @@
 from django import forms
 from .models import Room
+from zfeng.models import todo
 
 class GroupForm(forms.ModelForm):
     
@@ -15,3 +16,11 @@ class JoinCodeForm(forms.Form):
         if not Room.objects.filter(join_code=data).exists():
             raise forms.ValidationError("Invalid join code.")
         return data
+    
+class TaskForm(forms.ModelForm):
+    class Meta:
+        model = todo
+        fields = ['todo_name', 'assigned_to', 'due_date']
+        widgets = {
+            'due_date': forms.DateInput(attrs={'type': 'date'}),
+        }
