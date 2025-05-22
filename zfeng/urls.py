@@ -7,7 +7,7 @@ app_name = 'zfeng'
 
 urlpatterns = [
     path('', views.home, name='todolist'),
-    path('delete-task/<str:name>/', views.DeleteTask, name='delete'),
-    path('update/<str:name>/', views.Update, name='update'),
-    path('task/<str:name>/', views.TaskDetail, name='task-detail'),
+    path('delete-task/<int:id>/', views.DeleteTask, name='delete'),
+    path('update/<int:id>/', views.Update, name='update'),
+    path('task/<int:id>/', views.TaskDetail, name='task-detail'),
 ]

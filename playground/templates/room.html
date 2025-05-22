@@ -6,7 +6,7 @@
     <div class="navbar">
     <div class="brand-title">MMU VR Group</div>
     <div>
-    <a href="{% url 'join_group' %}">Join Group</a>
+    <a href="{% url 'grouping:join_group' %}">Join Group</a>
     </div>
 </div>
 
@@ -17,7 +17,7 @@
 <body>
 <div class="container">
   <!-- Create Room Form -->
-  <form method="POST" action="{% url 'create_room' %}" id="createForm" class="active">
+  <form method="POST" action="{% url 'grouping:create_room' %}" id="createForm" class="active">
       {% csrf_token %}
       <input type="hidden" name="form_type" value="create_group">
 
@@ -47,7 +47,7 @@
       <button type="submit" class="btn btn-success">Create Room</button>
   </form>
 
-    <form method="POST" action="{% url 'group' %}" id="joinForm" style="display: none;">
+    <form method="POST" action="{% url 'grouping:group' %}" id="joinForm" style="display: none;">
         {% csrf_token %}
         {{form.as_p}}
         <!-- Group Code -->

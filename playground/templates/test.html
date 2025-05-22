@@ -22,7 +22,7 @@
 
   {% block sidebar %}
   <div class="layout">
-    <nav id="sidebar">
+    <nav id="sidebar" class="sidebar">
         <ul>
             <li>
                 <span class="logo">MMU VR Study Group</span>
@@ -50,10 +50,10 @@
                 </button>
             <ul class="sub-menu">
                 <div>
-                <li><a href ="{% url 'group' %}">Create/Join</a></li>
+                <li><a href ="{% url 'grouping:group' %}">Create/Join</a></li>
                 {% for room in user_rooms %}
                     {% if room.join_code %}
-                        <li><a href="{% url 'workspace' Room_join_code=room.join_code %}">{{ room.roomname }}</a></li>
+                        <li><a href="{% url 'grouping:workspace' Room_join_code=room.join_code %}">{{ room.roomname }}</a></li>
                     {% endif %}
                 {% empty %}
                     <li>No workspaces joined yet.</li>

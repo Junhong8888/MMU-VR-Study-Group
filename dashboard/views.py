@@ -43,7 +43,7 @@ def index(request):
     context = {
         'usage_per_day': usage_per_day,  
         'hours_today': hours_today,
-        'task_count' : todo.objects.count(),  # Get total number of tasks      
+        'task_count' : todo.objects.filter(user=request.user).count()  # Get total number of tasks      
     }
 
     return render(request, 'dashboard.html', context)

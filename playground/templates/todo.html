@@ -137,9 +137,9 @@
                 {% endif %}
               </td>
               <td>
-                <a href="{% url 'zfeng:delete' i.todo_name %}" class="btn btn-danger me-1">Delete</a>
-                <a href="{% url 'zfeng:update' i.todo_name %}" class="btn btn-success me-1">Finished</a>
-                <a href="{% url 'zfeng:task-detail' i.todo_name %}" class="btn btn-info">Edit</a>
+                <a href="{% url 'zfeng:delete' i.id %}" class="btn btn-danger me-1">Delete</a>
+                <a href="{% url 'zfeng:update' i.id %}" class="btn btn-success me-1">Finished</a>
+                <a href="{% url 'zfeng:task-detail' i.id %}" class="btn btn-info">Edit</a>
               </td>
             </tr>
           {% endif %}

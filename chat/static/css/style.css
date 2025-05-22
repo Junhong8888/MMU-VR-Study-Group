@@ -3,8 +3,8 @@ body {
       margin: 0;
       padding: 0;
       display: grid;
-      grid-template-rows: auto 1fr; /* Navbar on top, sidebar and main content below */
-      grid-template-columns: auto 1fr; /* Sidebar and content layout */
+      grid-template-rows: auto 1fr; 
+      grid-template-columns: auto 1fr; 
       min-height: 100vh;
       color: white;
       background-color: #11121a;

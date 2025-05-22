@@ -16,7 +16,7 @@
 {% block content %}
 <div class="container">
     <h2>Join Group</h2>
-    <form method="POST" action="{% url 'join_group' %}">
+    <form method="POST" action="{% url 'grouping:join_group' %}">
         {% csrf_token %}
         <div class="form-group mb-3">
             <label for="join_code">Group Code</label>

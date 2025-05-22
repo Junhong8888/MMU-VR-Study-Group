@@ -17,18 +17,49 @@
 <div class="main-content">
   <div class="container">
     <h2>Workspace: {{ workspace.roomname }}</h2>
-    <form method="POST">
+
+      <form method="POST" class="row g-3 justify-content-center align-items-center mb-4">
       {% csrf_token %}
-      <input type="text" name="task" placeholder="New task..." required>
-      <button type="submit">Add Task</button>
+      <div class="col-md-4">
+        <input type="text" class="form-control" name="task" placeholder="Enter a task here" required>
+      </div>
+      <div class="col-md-3">
+        <select name="assigned_to" class="form-select">
+          <option value="">Assign to...</option>
+          {% for member in members %}
+            <option value="{{ member.id }}">{{ member.username }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <input type="date" name="due_date" class="form-control">
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Add Task</button>
+      </div>
     </form>
 
+    <!-- Task List -->
     <ul>
       {% for task in tasks %}
-        <li>{{ task.todo_name }} {% if task.status %}✅{% else %}❌{% endif %}</li>
+        <li>
+          <strong>{{ task.todo_name }}</strong>
+          <br>
+          Assigned to: {{ task.assigned_to.username|default:"-" }}<br>
+          Due date: {{ task.due_date|date:"Y-m-d"|default:"-" }}<br>
+
+          {% if task.status %}
+            <span style="color: green;">[Done]</span>
+          {% else %}
+            <a href="{% url 'grouping:update' task.id %}">Mark as done</a>
+          {% endif %}
+          |
+          <a href="{% url 'grouping:task-detail' task.id %}">Edit</a>
+          |
+          <a href="{% url 'grouping:delete' task.id %}">Delete</a>
+        </li>
       {% endfor %}
     </ul>
   </div>
 </div>
-
 {% endblock %}

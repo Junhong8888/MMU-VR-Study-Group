@@ -4,6 +4,9 @@ from .models import Topic, Room
 from .forms import GroupForm,JoinCodeForm
 from zfeng.models import todo
 from zfeng.forms import TodoForm
+from django.contrib.auth.models import User
+from datetime import datetime
+
 
 def group(request): 
     return render(request,'room.html',{})
@@ -32,7 +35,7 @@ def createRoom(request):
 
             room.members.add(request.user)
 
-            return redirect('workspace',Room_join_code=room.join_code)
+            return redirect('grouping:workspace',Room_join_code=room.join_code)
         
         elif form_type == 'join_group':
             group_code = request.POST.get('group_code')
@@ -70,7 +73,7 @@ def join_group(request):
                 # Add the logged-in user to the room
                 room.members.add(request.user)
                 #return redirect('chat:room', room_name=room.roomname)
-                return redirect('workspace',Room_join_code=room.join_code)
+                return redirect('grouping:workspace',Room_join_code=room.join_code)
             except Room.DoesNotExist:
                 error = "Invalid group code. Please try again."
 
@@ -93,52 +96,89 @@ def workspace(request, Room_join_code):
     workspace = get_object_or_404(Room, join_code=Room_join_code)
     user_rooms = Room.objects.filter(members=request.user)
 
-    # Ensure the user is part of the room
+    # Ensure user is part of the room
     if not (request.user == workspace.host or request.user in workspace.members.all()):
         return redirect('home')
 
     # Handle task creation
     if request.method == 'POST':
         task_name = request.POST.get('task')
+        assigned_to_id = request.POST.get('assigned_to')
+        due_date_str = request.POST.get('due_date')
+
         if task_name:
+            assigned_user = User.objects.get(id=assigned_to_id) if assigned_to_id else None
+            due_date = datetime.strptime(due_date_str, '%Y-%m-%d').date() if due_date_str else None
+
             todo.objects.create(
                 user=request.user,
                 todo_name=task_name,
-                workspace=workspace  # This links the task to the current workspace
+                assigned_to=assigned_user,
+                due_date=due_date,
+                workspace=workspace
             )
-            return redirect('workspace', Room_join_code=Room_join_code)
+            return redirect('grouping:workspace', Room_join_code=Room_join_code)
 
     tasks = todo.objects.filter(workspace=workspace)
+    members = workspace.members.all()
 
     return render(request, "workspace.html", {
         "workspace": workspace,
         "tasks": tasks,
-        "user_rooms":user_rooms,
+        "user_rooms": user_rooms,
+        "members": members,  # Pass this for select dropdown
     })
 
 
 
-def DeleteTask(request, name):
-    get_todo = todo.objects.get(user=request.user, todo_name=name)
+def DeleteTask(request, id):
+    get_todo = get_object_or_404(todo, user=request.user, id=id)
+    room_code = get_todo.workspace.join_code
     get_todo.delete()
-    return redirect('todolist')
+    return redirect('grouping:workspace',Room_join_code=room_code)
 
 
-def Update(request, name):
-    get_todo = todo.objects.get(user=request.user, todo_name=name)
+def Update(request, id):
+    get_todo = get_object_or_404(todo, user=request.user, id=id)
     get_todo.status = True
     get_todo.save()
-    return redirect('todolist')
+    return redirect('grouping:workspace',Room_join_code=get_todo.workspace.join_code)
 
-def TaskDetail(request, name):
-    task = todo.objects.get(user=request.user, todo_name=name)
+def TaskDetail(request, id):
+    task = get_object_or_404(todo, user=request.user, id=id)
 
     if request.method == 'POST':
         form = TodoForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
-            return redirect('todolist')
+            return redirect('grouping:workspace', Room_join_code=task.workspace.join_code)
     else:
         form = TodoForm(instance=task)
 
     return render(request, 'task_detail.html', {'form': form, 'task': task})
+
+
+'''
+def document_edit(request, pk):
+    doc = get_object_or_404(Document, pk=pk)
+    form = DocumentForm(request.POST or None, instance=doc)
+    if form.is_valid():
+        form.save()
+        return redirect('document_list')
+    return render(request, 'todoapp/document_form.html', {'form': form}) 
+
+def document_list(request):
+    docs = Document.objects.all()
+    return render(request, 'todoapp/document_list.html', {'documents': docs})
+
+def document_create(request):
+    if request.method == 'POST':
+        form = DocumentForm(request.POST)
+        if form.is_valid():
+            doc = form.save(commit=False)
+            doc.save()
+            return redirect('home-page')
+    else:
+        form = DocumentForm()
+    return render(request, 'todoapp/document_form.html', {'form': form})
+'''

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
     
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <style>
         video {
@@ -114,13 +114,39 @@
     {{ request.user.username|json_script:"user_username" }}
 
     <script>
+    const videoOnIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
+        <path d="M0 0h24v24H0V0z" fill="none"/>
+        <path d="M17 10.5V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4.5l4 4V6.5l-4 4z"/>
+        </svg>
+        `;
+
+        const videoOffIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
+        <path d="M0 0h24v24H0V0z" fill="none"/>
+        <path d="M21.41 20.29L4.27 3.16 3 4.44l4 4V18c0 1.1.9 2 2 2h8c.39 0 .75-.11 1.06-.29l2.49 2.49 1.27-1.27zM15 18H9V10.44l6 6V18zM17 10.5V6l4 4v.5l-4 4z"/>
+        </svg>
+        `;
+
+        const audioOnIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
+        <path d="M0 0h24v24H0V0z" fill="none"/>
+        <path d="M12 3v10.55A4 4 0 1014 17V4h4V3h-6z"/>
+        </svg>
+        `;
+
+        const audioOffIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
+        <path d="M0 0h24v24H0V0z" fill="none"/>
+        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.1l2.43 2.43c.04-.17.07-.35.07-.5zm3.5 0c0 .97-.19 1.89-.52 2.74l1.58 1.58c.6-1.19.94-2.55.94-4.02 0-4.42-3.58-8-8-8-1.47 0-2.83.34-4.02.94l1.58 1.58A6.996 6.996 0 0116.5 12zM4.27 3L3 4.27l4.99 5V13c0 2.21 1.79 4 4 4 .51 0 .98-.1 1.42-.27l4.3 4.3 1.27-1.27L4.27 3z"/>
+        </svg>`;
+
     const user_username = JSON.parse(document.getElementById('user_username').textContent);
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         
-        let videoEnabled = true;
+       let videoEnabled = true;
         let audioEnabled = true;
 
-        // Toggle Video
         document.getElementById('video-btn').addEventListener('click', () => {
             if (localStream) {
                 localStream.getVideoTracks().forEach(track => {
@@ -128,15 +154,11 @@
                 });
                 videoEnabled = !videoEnabled;
 
-                // Update button text
-                document.getElementById('video-btn').textContent = videoEnabled ? 'Turn Video Off' : 'Turn Video On';
-                console.log(`Video ${videoEnabled ? 'enabled' : 'disabled'}`);
-            } else {
-                console.warn('Local stream not found.');
+                // Toggle icon
+                document.getElementById('video-btn').innerHTML = videoEnabled ? videoOnIcon : videoOffIcon;
             }
         });
 
-        // Toggle Audio
         document.getElementById('audio-btn').addEventListener('click', () => {
             if (localStream) {
                 localStream.getAudioTracks().forEach(track => {
@@ -144,11 +166,8 @@
                 });
                 audioEnabled = !audioEnabled;
 
-                // Update button text
-                document.getElementById('audio-btn').textContent = audioEnabled ? 'Turn Audio Off' : 'Turn Audio On';
-                console.log(`Audio ${audioEnabled ? 'enabled' : 'disabled'}`);
-            } else {
-                console.warn('Local stream not found.');
+                // Toggle icon
+                document.getElementById('audio-btn').innerHTML = audioEnabled ? audioOnIcon : audioOffIcon;
             }
         });
 

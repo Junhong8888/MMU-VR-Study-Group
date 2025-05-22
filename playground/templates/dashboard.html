@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "test.html" %}
 {% load static %}
 
 {% block content %}
@@ -23,25 +23,14 @@
     background-color: rgba(33, 37, 41, 0.95);
     min-height: 100vh;
   }
+
+  .main-content{
+      color:black;
+  }
+
 </style>
-
-<div class="d-flex min-vh-100">
-
-  <!-- Sidebar -->
-  <div class="sidebar d-flex flex-column p-3 text-white" style="width: 250px;">
-    <h4 class="text-white">MMU-VR</h4>
-    <nav class="nav flex-column mb-auto">
-      <a class="nav-link text-white active" href="/dashboard/home">Home</a>
-      <a class="nav-link text-white" href="#">Dashboard</a>
-      <a class="nav-link text-white" href="#">Products</a>
-      <a class="nav-link text-white" href="{% url 'reports' %}">Reports</a>
-      <a class="nav-link text-white" href="#">About</a>
-    </nav>
-    <div class="sidebar-footer mt-auto d-flex align-items-center border-top border-secondary pt-3">
-      <img src="https://images.pexels.com/photos/1103970/pexels-photo-1103970.jpeg?cs=srgb&dl=pexels-jplenio-1103970.jpg&fm=jpg" class="rounded-circle me-2" alt="mdo">
-      <span>mdo ▼</span>
-    </div>
-  </div>
+<div class="main-content">
+  <div class="d-flex min-vh-100">
 
   <!-- Main content -->
   <div class="flex-grow-1 d-flex flex-column">

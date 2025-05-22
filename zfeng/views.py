@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect , get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -11,11 +11,12 @@ from .forms import TodoForm
 def home(request):
     if request.method == 'POST':
         task = request.POST.get('task')
-        if task: 
+        if task:
             new_todo = todo(user=request.user, todo_name=task)
             new_todo.save()
+        return redirect('zfeng:todolist')  # 👈 redirect to clear POST
 
-    all_todos = todo.objects.filter(user=request.user,workspace=None)
+    all_todos = todo.objects.filter(user=request.user, workspace=None)
     context = {
         'todos': all_todos
     }
@@ -23,26 +24,26 @@ def home(request):
 
 
 
-def DeleteTask(request, name):
-    get_todo = todo.objects.get(user=request.user, todo_name=name)
+def DeleteTask(request, id):
+    get_todo = get_object_or_404(todo, user=request.user, id=id)
     get_todo.delete()
-    return redirect('todolist')
+    return redirect('zfeng:todolist')
 
 
-def Update(request, name):
-    get_todo = todo.objects.get(user=request.user, todo_name=name)
+def Update(request, id):
+    get_todo = get_object_or_404(todo, user=request.user, id=id)
     get_todo.status = True
     get_todo.save()
-    return redirect('todolist')
+    return redirect('zfeng:todolist')
 
-def TaskDetail(request, name):
-    task = todo.objects.get(user=request.user, todo_name=name)
+def TaskDetail(request, id):
+    task = get_object_or_404(todo, user=request.user, id=id)
 
     if request.method == 'POST':
         form = TodoForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
-            return redirect('todolist')
+            return redirect('zfeng:todolist')
     else:
         form = TodoForm(instance=task)
 
