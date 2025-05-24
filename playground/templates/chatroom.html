@@ -177,53 +177,80 @@
         let chatSocket;
         try {
             chatSocket = new WebSocket(
-                'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
+                'wss://' + window.location.host + '/ws/chat/' + roomName + '/'
             );
             console.log("WebSocket connection established.");
         } catch (err) {
             console.error("Failed to establish WebSocket connection:", err);
         }
 
-        // WebSocket event handlers
-        chatSocket.onopen = () => console.log("WebSocket open.");
-        chatSocket.onerror = (err) => console.error("WebSocket error:", err);
-        chatSocket.onclose = () => console.warn("WebSocket connection closed.");
-        chatSocket.onmessage = async function (e) {
-            console.log("Message received:", e.data);
-            const data = JSON.parse(e.data);
 
-            // Chat messages
-            if (data.message && data.username) {
-                document.querySelector('#chat-text').value += `${data.username}: ${data.message}\n`;
-            }
+            // WebSocket event handlers
+            chatSocket.onopen = () => console.log("WebSocket open.");
+            chatSocket.onerror = (err) => console.error("WebSocket error:", err);
+            chatSocket.onclose = () => console.warn("WebSocket connection closed.");
+            let remoteDescriptionSet = false;
+            let candidateQueue = [];
 
-            // SDP signaling
-            if (data.type === "sdp") {
-                const description = new RTCSessionDescription(data.sdp);
-                if (!peerConnection) await initVideoSession();
+            chatSocket.onmessage = async function (e) {
+                console.log("Message received:", e.data);
+                const data = JSON.parse(e.data);
 
-                if (description.type === "offer") {
-                    console.log("Received SDP offer.");
-                    await peerConnection.setRemoteDescription(description);
-                    const answer = await peerConnection.createAnswer();
-                    await peerConnection.setLocalDescription(answer);
-                    chatSocket.send(JSON.stringify({ type: "sdp", sdp: peerConnection.localDescription }));
-                } else if (description.type === "answer") {
-                    console.log("Received SDP answer.");
-                    await peerConnection.setRemoteDescription(description);
+                // Chat messages
+                if (data.message && data.username) {
+                    document.querySelector('#chat-text').value += `${data.username}: ${data.message}\n`;
                 }
-            }
 
-            // ICE candidates
-            if (data.type === "ice" && data.candidate) {
-                console.log("Received ICE candidate:", data.candidate);
-                try {
-                    await peerConnection.addIceCandidate(data.candidate);
-                } catch (err) {
-                    console.error("Error adding ICE candidate:", err);
+                // SDP signaling (offer/answer)
+                if (data.type === "sdp") {
+                    const description = new RTCSessionDescription(data.sdp);
+                    if (!peerConnection) await initVideoSession();
+
+                    if (description.type === "offer") {
+                        if (peerConnection.signalingState === "stable") {
+                            await peerConnection.setRemoteDescription(description);
+                            remoteDescriptionSet = true;
+                            // Add any queued candidates
+                            while (candidateQueue.length > 0) {
+                                try {
+                                    await peerConnection.addIceCandidate(candidateQueue.shift());
+                                } catch (err) {
+                                    console.error("Error adding queued ICE candidate:", err);
+                                }
+                            }
+                            const answer = await peerConnection.createAnswer();
+                            await peerConnection.setLocalDescription(answer);
+                            chatSocket.send(JSON.stringify({ type: "sdp", sdp: peerConnection.localDescription }));
+                        }
+                    } else if (description.type === "answer") {
+                        if (peerConnection.signalingState !== "stable") {
+                            await peerConnection.setRemoteDescription(description);
+                            remoteDescriptionSet = true;
+                            // Add any queued candidates
+                            while (candidateQueue.length > 0) {
+                                try {
+                                    await peerConnection.addIceCandidate(candidateQueue.shift());
+                                } catch (err) {
+                                    console.error("Error adding queued ICE candidate:", err);
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-        };
+
+                // ICE candidates
+                if (data.type === "ice" && data.candidate) {
+                    if (peerConnection && peerConnection.remoteDescription && peerConnection.remoteDescription.type) {
+                        try {
+                            await peerConnection.addIceCandidate(data.candidate);
+                        } catch (err) {
+                            console.error("Error adding ICE candidate:", err);
+                        }
+                    } else {
+                        candidateQueue.push(data.candidate);
+                    }
+                }
+            };
 
         // WebRTC setup
         let localStream;

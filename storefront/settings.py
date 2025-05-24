@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-@kdz)3*0&%_rp_5&ujr@6@@f=l%qwic3%9f8tq=(p5ev49y6ec
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "b13e-60-48-95-135.ngrok-free.app"
+]
 
 
 # Application definition
@@ -143,4 +145,24 @@ CHANNEL_LAYERS = {
     }
 }
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
+}
+
 LOGIN_URL = '/users/login_signup/'
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+    }
+}
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://b13e-60-48-95-135.ngrok-free.app"
+]
