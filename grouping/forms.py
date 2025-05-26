@@ -1,5 +1,5 @@
 from django import forms
-from .models import Room
+from .models import Room,Document
 from zfeng.models import todo
 
 class GroupForm(forms.ModelForm):
@@ -24,3 +24,8 @@ class TaskForm(forms.ModelForm):
         widgets = {
             'due_date': forms.DateInput(attrs={'type': 'date'}),
         }
+
+class DocumentForm(forms.ModelForm):
+    class Meta:
+        model = Document
+        fields = ['title', 'content']

@@ -6,6 +6,8 @@ from zfeng.models import todo
 from zfeng.forms import TodoForm
 from django.contrib.auth.models import User
 from datetime import datetime
+from .models import Document
+from .forms import DocumentForm
 
 
 def group(request): 
@@ -145,28 +147,37 @@ def Update(request, id):
     return redirect('grouping:workspace',Room_join_code=get_todo.workspace.join_code)
 
 def TaskDetail(request, id):
-    task = get_object_or_404(todo, user=request.user, id=id)
+    task = get_object_or_404(todo, id=id, user=request.user)
+    workspace = task.workspace
+
+    # Ensure document exists
+    if task.document is None:
+        document = Document.objects.create(title=f'Document for task {task.todo_name}')
+        task.document = document
+        task.save()
+    else:
+        document = task.document
 
     if request.method == 'POST':
-        form = TodoForm(request.POST, instance=task)
-        if form.is_valid():
-            form.save()
-            return redirect('grouping:workspace', Room_join_code=task.workspace.join_code)
+        todo_form = TodoForm(request.POST, instance=task, workspace=workspace, prefix="task")
+        doc_form = DocumentForm(request.POST, request.FILES, instance=document, prefix="doc")
+
+        if todo_form.is_valid() and doc_form.is_valid():
+            todo_form.save()
+            doc_form.save()
+            return redirect('grouping:workspace', Room_join_code=workspace.join_code)
     else:
-        form = TodoForm(instance=task)
+        todo_form = TodoForm(instance=task, workspace=workspace, prefix="task")
+        doc_form = DocumentForm(instance=document, prefix="doc")
 
-    return render(request, 'task_detail.html', {'form': form, 'task': task})
-
+    return render(request, 'task_detail.html', {
+        'todo_form': todo_form,
+        'doc_form': doc_form,
+        'task': task,
+        'document': document,
+    })
 
 '''
-def document_edit(request, pk):
-    doc = get_object_or_404(Document, pk=pk)
-    form = DocumentForm(request.POST or None, instance=doc)
-    if form.is_valid():
-        form.save()
-        return redirect('document_list')
-    return render(request, 'todoapp/document_form.html', {'form': form}) 
-
 def document_list(request):
     docs = Document.objects.all()
     return render(request, 'todoapp/document_list.html', {'documents': docs})
