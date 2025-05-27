@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from .models import Document
 from .forms import DocumentForm
+from django.http import HttpResponseForbidden
 
 
 def group(request): 
@@ -134,20 +135,26 @@ def workspace(request, Room_join_code):
 
 
 def DeleteTask(request, id):
-    get_todo = get_object_or_404(todo, user=request.user, id=id)
+    get_todo = get_object_or_404(todo, id=id)
+    if request.user not in get_todo.workspace.members.all():
+        return HttpResponseForbidden("You do not have permission to delete this task.")
     room_code = get_todo.workspace.join_code
     get_todo.delete()
-    return redirect('grouping:workspace',Room_join_code=room_code)
+    return redirect('grouping:workspace', Room_join_code=room_code)
 
 
 def Update(request, id):
-    get_todo = get_object_or_404(todo, user=request.user, id=id)
+    get_todo = get_object_or_404(todo, id=id)
+    if request.user not in get_todo.workspace.members.all():
+        return HttpResponseForbidden("You do not have permission to delete this task.")
     get_todo.status = True
     get_todo.save()
     return redirect('grouping:workspace',Room_join_code=get_todo.workspace.join_code)
 
 def TaskDetail(request, id):
-    task = get_object_or_404(todo, id=id, user=request.user)
+    task = get_object_or_404(todo, id=id,)
+    if request.user not in task.workspace.members.all():
+        return HttpResponseForbidden("You do not have permission to delete this task.")
     workspace = task.workspace
 
     # Ensure document exists

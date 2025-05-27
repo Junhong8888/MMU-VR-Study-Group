@@ -66,17 +66,19 @@
               {% endif %}
             </td>
             <td>
-              {% if not task.status %}
-                <a href="{% url 'grouping:update' task.id %}">
-                  <button type="button" class="btn btn-success btn-sm">Mark as Done</button>
+              {% if user in task.workspace.members.all %}
+                {% if not task.status %}
+                  <a href="{% url 'grouping:update' task.id %}">
+                    <button type="button" class="btn btn-success btn-sm">Mark as Done</button>
+                  </a>
+                {% endif %}
+                <a href="{% url 'grouping:task-detail' task.id %}">
+                  <button type="button" class="btn btn-info btn-sm">Edit</button>
+                </a>
+                <a href="{% url 'grouping:delete' task.id %}">
+                  <button type="button" class="btn btn-danger btn-sm">Delete</button>
                 </a>
               {% endif %}
-              <a href="{% url 'grouping:task-detail' task.id %}">
-                <button type="button" class="btn btn-info btn-sm">Edit</button>
-              </a>
-              <a href="{% url 'grouping:delete' task.id %}">
-                <button type="button" class="btn btn-danger btn-sm">Delete</button>
-              </a>
             </td>
           </tr>
           {% endif %}
