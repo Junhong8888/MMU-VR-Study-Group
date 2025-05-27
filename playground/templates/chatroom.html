@@ -69,16 +69,19 @@
         }
     </style>
     <title>Hello, world!</title>
+
+    
   </head>
+
   <body>
-    <div class="column">
-        <div class="col-md-6">
+    <div class="row">
+        <div class="col-md-2">
             <h5>Local Video</h5>
             <video id="localVideo" autoplay muted playsinline></video>
         </div>
-        <div class="col-md-6">
-            <h5>Remote Video</h5>
-            <video id="remoteVideo" autoplay playsinline></video>
+        <div class="col-md-2">
+            <h5>Remote Videos</h5>
+            <div id="remoteVideos" class="row"></div>
         </div>
     </div>
 
@@ -108,12 +111,18 @@
             <path d="M12 3v10.55A4 4 0 1014 17V4h4V3h-6z"/>
         </svg>
     </button>
+    <button id="etherpad"><a href="{% url 'chat:etherpad' %}">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v240h-80v-200H520v-200H240v640h360v80H240Zm638 15L760-183v89h-80v-226h226v80h-90l118 118-56 57Zm-638-95v-640 640Z"/></svg>
+    </a></button>
 </div>
 
     {{ room_name|json_script:"room-name" }}
     {{ request.user.username|json_script:"user_username" }}
 
     <script>
+    
+        
+
     const videoOnIcon = `
         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
         <path d="M0 0h24v24H0V0z" fill="none"/>
@@ -174,93 +183,113 @@
 
 
         // WebSocket connection
-        let chatSocket;
-        try {
-            chatSocket = new WebSocket(
-                'wss://' + window.location.host + '/ws/chat/' + roomName + '/'
-            );
-            console.log("WebSocket connection established.");
-        } catch (err) {
-            console.error("Failed to establish WebSocket connection:", err);
-        }
+        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+        chatSocket = new WebSocket(
+            wsScheme + '://' + window.location.host + '/ws/chat/' + roomName + '/'
+        );
 
 
-            // WebSocket event handlers
-            chatSocket.onopen = () => console.log("WebSocket open.");
-            chatSocket.onerror = (err) => console.error("WebSocket error:", err);
-            chatSocket.onclose = () => console.warn("WebSocket connection closed.");
-            let remoteDescriptionSet = false;
-            let candidateQueue = [];
+        // WebSocket event handlers
+        chatSocket.onopen = () => console.log("WebSocket open.");
+        chatSocket.onerror = (err) => console.error("WebSocket error:", err);
+        chatSocket.onclose = () => console.warn("WebSocket connection closed.");
+        chatSocket.onmessage = async function (e) {
+            const data = JSON.parse(e.data);
+            const sender = data.sender;
 
-            chatSocket.onmessage = async function (e) {
-                console.log("Message received:", e.data);
-                const data = JSON.parse(e.data);
+            if (sender === user_username) return; // Skip messages from self
 
-                // Chat messages
-                if (data.message && data.username) {
-                    document.querySelector('#chat-text').value += `${data.username}: ${data.message}\n`;
+            if (data.type === "sdp") {
+                let pc = peerConnections[sender];
+                if (!pc) pc = await createPeerConnection(sender);
+
+                await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+                if (data.sdp.type === "offer") {
+                    const answer = await pc.createAnswer();
+                    await pc.setLocalDescription(answer);
+                    chatSocket.send(JSON.stringify({
+                        type: "sdp",
+                        sdp: pc.localDescription,
+                        sender: user_username,
+                        target: sender
+                    }));
                 }
+            }
 
-                // SDP signaling (offer/answer)
-                if (data.type === "sdp") {
-                    const description = new RTCSessionDescription(data.sdp);
-                    if (!peerConnection) await initVideoSession();
-
-                    if (description.type === "offer") {
-                        if (peerConnection.signalingState === "stable") {
-                            await peerConnection.setRemoteDescription(description);
-                            remoteDescriptionSet = true;
-                            // Add any queued candidates
-                            while (candidateQueue.length > 0) {
-                                try {
-                                    await peerConnection.addIceCandidate(candidateQueue.shift());
-                                } catch (err) {
-                                    console.error("Error adding queued ICE candidate:", err);
-                                }
-                            }
-                            const answer = await peerConnection.createAnswer();
-                            await peerConnection.setLocalDescription(answer);
-                            chatSocket.send(JSON.stringify({ type: "sdp", sdp: peerConnection.localDescription }));
-                        }
-                    } else if (description.type === "answer") {
-                        if (peerConnection.signalingState !== "stable") {
-                            await peerConnection.setRemoteDescription(description);
-                            remoteDescriptionSet = true;
-                            // Add any queued candidates
-                            while (candidateQueue.length > 0) {
-                                try {
-                                    await peerConnection.addIceCandidate(candidateQueue.shift());
-                                } catch (err) {
-                                    console.error("Error adding queued ICE candidate:", err);
-                                }
-                            }
-                        }
-                    }
+            if (data.type === "ice" && data.candidate) {
+                const pc = peerConnections[sender];
+                if (pc) {
+                    await pc.addIceCandidate(data.candidate);
                 }
+            }
 
-                // ICE candidates
-                if (data.type === "ice" && data.candidate) {
-                    if (peerConnection && peerConnection.remoteDescription && peerConnection.remoteDescription.type) {
-                        try {
-                            await peerConnection.addIceCandidate(data.candidate);
-                        } catch (err) {
-                            console.error("Error adding ICE candidate:", err);
-                        }
-                    } else {
-                        candidateQueue.push(data.candidate);
-                    }
+            if (data.type === "new-user") {
+                if (data.username !== user_username) {
+                    await createOfferForUser(data.username);
                 }
-            };
+            }
+
+            if (data.message && data.username) {
+                document.querySelector('#chat-text').value += `${data.username}: ${data.message}\n`;
+            }
+        };
 
         // WebRTC setup
         let localStream;
-        let peerConnection;
-        const servers = {
+        const peerConnections = {};
+        const config = {
             iceServers: [
                 { urls: "stun:stun.l.google.com:19302" },
                 { urls: "turn:your-turn-server.com", username: "user", credential: "password" } // Optional TURN server
             ]
         };
+
+        async function createPeerConnection(username) {
+            const pc = new RTCPeerConnection(config);
+            peerConnections[username] = pc;
+
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+            pc.ontrack = (event) => {
+                let remoteVideo = document.getElementById(`video-${username}`);
+                if (!remoteVideo) {
+                    remoteVideo = document.createElement("video");
+                    remoteVideo.id = `video-${username}`;
+                    remoteVideo.autoplay = true;
+                    remoteVideo.playsInline = true;
+                    remoteVideo.classList.add("col-12", "mb-2");
+
+                    document.getElementById("remoteVideos").appendChild(remoteVideo);
+                }
+                remoteVideo.srcObject = event.streams[0];
+            };
+
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    chatSocket.send(JSON.stringify({
+                        type: "ice",
+                        candidate: event.candidate,
+                        sender: user_username,
+                        target: username
+                    }));
+                }
+            };
+
+            return pc;
+        }
+
+
+        async function createOfferForUser(username) {
+            const pc = await createPeerConnection(username);
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            chatSocket.send(JSON.stringify({
+                type: "sdp",
+                sdp: pc.localDescription,
+                sender: user_username,
+                target: username
+            }));
+        }
 
         async function initVideoSession() {
             try {
@@ -306,10 +335,45 @@
             }
         }
 
+        async function initLocalStream() {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById("localVideo").srcObject = localStream;
+        }
+
         // Trigger call on load
-        window.onload = () => {
-            setTimeout(makeCall, 1000);
+        window.onload = async () => {
+            await initLocalStream();
+
+            // Wait until the WebSocket is open before sending anything
+            const waitForSocketConnection = (socket, callback) => {
+                const maxRetries = 10;
+                let retryCount = 0;
+
+                const wait = () => {
+                    if (socket.readyState === WebSocket.OPEN) {
+                        console.log("WebSocket is ready.");
+                        if (callback != null) callback();
+                    } else {
+                        retryCount++;
+                        if (retryCount > maxRetries) {
+                            console.error("WebSocket connection timeout.");
+                            return;
+                        }
+                        console.log("Waiting for WebSocket connection...");
+                        setTimeout(wait, 200); // retry every 200ms
+                    }
+                };
+                wait();
+            };
+
+            waitForSocketConnection(chatSocket, () => {
+                chatSocket.send(JSON.stringify({
+                    type: "new-user",
+                    username: user_username
+                }));
+            });
         };
+
 
         // Send chat messages
         document.querySelector('#submit').onclick = function () {

@@ -16,9 +16,10 @@
   <div class="navbar">
     <div class="brand-title">MMU VR Group</div>
     <div class="nav-links">
-      <a href="{% todo2:home-page}">To-Do List</a>
+      <a href="#">To-Do List</a>
       <a href="#">Test</a>
       <a href="{% url 'login_signup' %}">Login</a>
+      <a href="{% url 'todoapp:home-page' %}">Homepage</a>
     </div>
   </div>
   {% endblock %}

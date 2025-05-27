@@ -31,41 +31,54 @@ class ChatRoomConsumers(AsyncWebsocketConsumer):
                     'username': data['username'],
                 }
             )
-        elif data.get('type') == 'sdp':
+        elif data.get('type') == 'new-user':
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
-                    'type': 'sdp_message',
-                    'sdp': data['sdp'],
-                    'sender_channel_name': self.channel_name
+                    'type': 'new_user',
+                    'username': data['username'],
                 }
             )
-        elif data.get('type') == 'ice':
+        elif data.get('type') in ['sdp', 'ice']:
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
-                    'type': 'ice_message',
-                    'candidate': data['candidate'],
+                    'type': f"{data['type']}_message",
+                    'data': data,
                     'sender_channel_name': self.channel_name
                 }
             )
 
     async def sdp_message(self, event):
-        if self.channel_name != event['sender_channel_name']:
+        data = event['data']
+        target = data.get('target')
+
+        if self.scope["user"].username == target:
             await self.send(text_data=json.dumps({
                 'type': 'sdp',
-                'sdp': event['sdp'],
+                'sdp': data['sdp'],
+                'sender': data['sender']
             }))
 
     async def ice_message(self, event):
-        if self.channel_name != event['sender_channel_name']:
+        data = event['data']
+        target = data.get('target')
+
+        if self.scope["user"].username == target:
             await self.send(text_data=json.dumps({
                 'type': 'ice',
-                'candidate': event['candidate'],
+                'candidate': data['candidate'],
+                'sender': data['sender']
             }))
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
             'message': event['message'],
             'username': event['username'],
+        }))
+
+    async def new_user(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'new-user',
+            'username': event['username']
         }))

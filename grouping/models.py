@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
+from ckeditor.fields import RichTextField
 
 
 # Create your models here.
@@ -32,12 +33,12 @@ class Room(models.Model):
 
     def __str__(self):
         return self.roomname
-'''
+
 class Document(models.Model):
     title = models.CharField(max_length=200)
     content = RichTextField()
 
     def __str__(self):
         return self.title
-'''    
+    
 
