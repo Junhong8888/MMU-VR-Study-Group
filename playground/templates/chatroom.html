@@ -74,14 +74,14 @@
   </head>
 
   <body>
-    <div class="column">
-        <div class="col-md-6">
+    <div class="row">
+        <div class="col-md-2">
             <h5>Local Video</h5>
             <video id="localVideo" autoplay muted playsinline></video>
         </div>
-        <div class="col-md-6">
-            <h5>Remote Video</h5>
-            <video id="remoteVideo" autoplay playsinline></video>
+        <div class="col-md-2">
+            <h5>Remote Videos</h5>
+            <div id="remoteVideos" class="row"></div>
         </div>
     </div>
 
@@ -120,6 +120,9 @@
     {{ request.user.username|json_script:"user_username" }}
 
     <script>
+    
+        
+
     const videoOnIcon = `
         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
         <path d="M0 0h24v24H0V0z" fill="none"/>
@@ -195,51 +198,102 @@
         chatSocket.onerror = (err) => console.error("WebSocket error:", err);
         chatSocket.onclose = () => console.warn("WebSocket connection closed.");
         chatSocket.onmessage = async function (e) {
-            console.log("Message received:", e.data);
             const data = JSON.parse(e.data);
+            const sender = data.sender;
 
-            // Chat messages
+            if (sender === user_username) return; // Skip messages from self
+
+            if (data.type === "sdp") {
+                let pc = peerConnections[sender];
+                if (!pc) pc = await createPeerConnection(sender);
+
+                await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+                if (data.sdp.type === "offer") {
+                    const answer = await pc.createAnswer();
+                    await pc.setLocalDescription(answer);
+                    chatSocket.send(JSON.stringify({
+                        type: "sdp",
+                        sdp: pc.localDescription,
+                        sender: user_username,
+                        target: sender
+                    }));
+                }
+            }
+
+            if (data.type === "ice" && data.candidate) {
+                const pc = peerConnections[sender];
+                if (pc) {
+                    await pc.addIceCandidate(data.candidate);
+                }
+            }
+
+            if (data.type === "new-user") {
+                if (data.username !== user_username) {
+                    await createOfferForUser(data.username);
+                }
+            }
+
             if (data.message && data.username) {
                 document.querySelector('#chat-text').value += `${data.username}: ${data.message}\n`;
-            }
-
-            // SDP signaling
-            if (data.type === "sdp") {
-                const description = new RTCSessionDescription(data.sdp);
-                if (!peerConnection) await initVideoSession();
-
-                if (description.type === "offer") {
-                    console.log("Received SDP offer.");
-                    await peerConnection.setRemoteDescription(description);
-                    const answer = await peerConnection.createAnswer();
-                    await peerConnection.setLocalDescription(answer);
-                    chatSocket.send(JSON.stringify({ type: "sdp", sdp: peerConnection.localDescription }));
-                } else if (description.type === "answer") {
-                    console.log("Received SDP answer.");
-                    await peerConnection.setRemoteDescription(description);
-                }
-            }
-
-            // ICE candidates
-            if (data.type === "ice" && data.candidate) {
-                console.log("Received ICE candidate:", data.candidate);
-                try {
-                    await peerConnection.addIceCandidate(data.candidate);
-                } catch (err) {
-                    console.error("Error adding ICE candidate:", err);
-                }
             }
         };
 
         // WebRTC setup
         let localStream;
-        let peerConnection;
-        const servers = {
+        const peerConnections = {};
+        const config = {
             iceServers: [
                 { urls: "stun:stun.l.google.com:19302" },
                 { urls: "turn:your-turn-server.com", username: "user", credential: "password" } // Optional TURN server
             ]
         };
+
+        async function createPeerConnection(username) {
+            const pc = new RTCPeerConnection(config);
+            peerConnections[username] = pc;
+
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+            pc.ontrack = (event) => {
+                let remoteVideo = document.getElementById(`video-${username}`);
+                if (!remoteVideo) {
+                    remoteVideo = document.createElement("video");
+                    remoteVideo.id = `video-${username}`;
+                    remoteVideo.autoplay = true;
+                    remoteVideo.playsInline = true;
+                    remoteVideo.classList.add("col-12", "mb-2");
+
+                    document.getElementById("remoteVideos").appendChild(remoteVideo);
+                }
+                remoteVideo.srcObject = event.streams[0];
+            };
+
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    chatSocket.send(JSON.stringify({
+                        type: "ice",
+                        candidate: event.candidate,
+                        sender: user_username,
+                        target: username
+                    }));
+                }
+            };
+
+            return pc;
+        }
+
+
+        async function createOfferForUser(username) {
+            const pc = await createPeerConnection(username);
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            chatSocket.send(JSON.stringify({
+                type: "sdp",
+                sdp: pc.localDescription,
+                sender: user_username,
+                target: username
+            }));
+        }
 
         async function initVideoSession() {
             try {
@@ -285,9 +339,19 @@
             }
         }
 
+        async function initLocalStream() {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById("localVideo").srcObject = localStream;
+        }
+
         // Trigger call on load
-        window.onload = () => {
-            setTimeout(makeCall, 1000);
+        window.onload = async () => {
+            await initLocalStream();
+
+            chatSocket.send(JSON.stringify({
+                type: "new-user",
+                username: user_username
+            }));
         };
 
         // Send chat messages

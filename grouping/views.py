@@ -128,7 +128,7 @@ def workspace(request, Room_join_code):
         "workspace": workspace,
         "tasks": tasks,
         "user_rooms": user_rooms,
-        "members": members,  # Pass this for select dropdown
+        "members": members,  
     })
 
 
