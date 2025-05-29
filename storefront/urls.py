@@ -29,5 +29,6 @@ urlpatterns = [
     #path('test/',include('test.urls')),
     path('zfeng/',include('zfeng.urls')),
     path('dashboard/',include('dashboard.urls')),
-    path('todoapp',include('todoapp.urls'))
+    path('todoapp',include('todoapp.urls')),
+    path('users/', include('django.contrib.auth.urls')),
 ] 

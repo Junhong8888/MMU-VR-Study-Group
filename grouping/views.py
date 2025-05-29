@@ -1,7 +1,7 @@
-from django.shortcuts import render, redirect,get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Topic, Room
-from .forms import GroupForm,JoinCodeForm
+from .forms import GroupForm, JoinCodeForm
 from zfeng.models import todo
 from zfeng.forms import TodoForm
 from django.contrib.auth.models import User
@@ -9,10 +9,11 @@ from datetime import datetime
 from .models import Document
 from .forms import DocumentForm
 from django.http import HttpResponseForbidden
+from django.utils.timezone import localtime
 
 
 def group(request): 
-    return render(request,'room.html',{})
+    return render(request, 'room.html', {})
 
 
 @login_required
@@ -21,7 +22,7 @@ def createRoom(request):
 
     if request.method == "POST":
         form_type = request.POST.get('form_type')
-        
+
         if form_type == 'create_group':
             topic_name = request.POST.get('topic')
             roomname = request.POST.get('roomname')
@@ -38,13 +39,12 @@ def createRoom(request):
 
             room.members.add(request.user)
 
-            return redirect('grouping:workspace',Room_join_code=room.join_code)
-        
+            return redirect('grouping:workspace', Room_join_code=room.join_code)
+
         elif form_type == 'join_group':
             group_code = request.POST.get('group_code')
 
             try:
-                # Validate the group code and add the user to the room
                 room = Room.objects.get(group_code=group_code)
                 room.members.add(request.user)
                 return redirect('workspace')
@@ -65,45 +65,29 @@ def join_group(request):
     error = None
 
     if request.method == 'POST':
-        group_code = request.POST.get('join_code')  # Get the group code submitted by the user
+        group_code = request.POST.get('join_code')
 
         if not group_code:
             error = "Group code is required to join a group."
         else:
             try:
-                # Validate the group code
-                room = Room.objects.get(join_code=group_code)  # Ensure group_code is unique in the model
-                # Add the logged-in user to the room
+                room = Room.objects.get(join_code=group_code)
                 room.members.add(request.user)
-                #return redirect('chat:room', room_name=room.roomname)
-                return redirect('grouping:workspace',Room_join_code=room.join_code)
+                return redirect('grouping:workspace', Room_join_code=room.join_code)
             except Room.DoesNotExist:
                 error = "Invalid group code. Please try again."
 
     return render(request, 'join_by_code.html', {'error': error})
 
-'''
-@login_required
-def workspace(request, room_id):
-    group = get_object_or_404(Room, id=room_id)
-
-    # Check if user is host or member
-    if request.user == group.host or request.user in group.members.all():
-        return render(request, 'todo.html', {'group': group})
-    else:
-        return redirect('home')  # or show a permission denied message
-'''
 
 @login_required
 def workspace(request, Room_join_code):
     workspace = get_object_or_404(Room, join_code=Room_join_code)
     user_rooms = Room.objects.filter(members=request.user)
 
-    # Ensure user is part of the room
     if not (request.user == workspace.host or request.user in workspace.members.all()):
         return redirect('home')
 
-    # Handle task creation
     if request.method == 'POST':
         task_name = request.POST.get('task')
         assigned_to_id = request.POST.get('assigned_to')
@@ -125,13 +109,18 @@ def workspace(request, Room_join_code):
     tasks = todo.objects.filter(workspace=workspace)
     members = workspace.members.all()
 
+    # Get last login time of the current user
+    user = request.user
+    last_login = user.last_login
+    last_login_display = localtime(last_login).strftime("%Y-%m-%d %H:%M:%S") if last_login else "Never logged in"
+
     return render(request, "workspace.html", {
         "workspace": workspace,
         "tasks": tasks,
         "user_rooms": user_rooms,
-        "members": members,  
+        "members": members,
+        "user_last_login": last_login_display,
     })
-
 
 
 def DeleteTask(request, id):
@@ -149,15 +138,15 @@ def Update(request, id):
         return HttpResponseForbidden("You do not have permission to delete this task.")
     get_todo.status = True
     get_todo.save()
-    return redirect('grouping:workspace',Room_join_code=get_todo.workspace.join_code)
+    return redirect('grouping:workspace', Room_join_code=get_todo.workspace.join_code)
+
 
 def TaskDetail(request, id):
-    task = get_object_or_404(todo, id=id,)
+    task = get_object_or_404(todo, id=id)
     if request.user not in task.workspace.members.all():
         return HttpResponseForbidden("You do not have permission to delete this task.")
     workspace = task.workspace
 
-    # Ensure document exists
     if task.document is None:
         document = Document.objects.create(title=f'Document for task {task.todo_name}')
         task.document = document
@@ -183,20 +172,3 @@ def TaskDetail(request, id):
         'task': task,
         'document': document,
     })
-
-'''
-def document_list(request):
-    docs = Document.objects.all()
-    return render(request, 'todoapp/document_list.html', {'documents': docs})
-
-def document_create(request):
-    if request.method == 'POST':
-        form = DocumentForm(request.POST)
-        if form.is_valid():
-            doc = form.save(commit=False)
-            doc.save()
-            return redirect('home-page')
-    else:
-        form = DocumentForm()
-    return render(request, 'todoapp/document_form.html', {'form': form})
-'''

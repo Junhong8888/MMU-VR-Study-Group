@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'zfeng',
     'debug_toolbar',
     'todoapp',
-    'ckeditor'
+    'django_ckeditor_5',
+    'workspace_chat',
 ]
 
 MIDDLEWARE = [
@@ -70,7 +71,7 @@ ROOT_URLCONF = 'storefront.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -122,7 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kuala_Lumpur'
 
 USE_I18N = True
 
@@ -145,7 +146,7 @@ CHANNEL_LAYERS = {
     }
 }
 
-LOGIN_URL = '/users/login_signup/'
+LOGIN_URL = '/users/login/'
 
 # Allow your site to be framed only by the same origin (recommended)
 X_FRAME_OPTIONS = 'SAMEORIGIN'

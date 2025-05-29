@@ -1,10 +1,7 @@
 {% extends "test.html" %}
 {% load static %}
- 
-
 
 {% block content %}
-
 
 <style>
   body {
@@ -26,8 +23,20 @@
   .main-content {
     color: black;
   }
-</style>
 
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .chart-header h6 {
+    margin: 0;
+    font-weight: 600;
+    color: #0d6efd;
+  }
+</style>
 
 <div class="main-content">
   <div class="d-flex min-vh-100">
@@ -41,14 +50,13 @@
           </div>
 
           <div class="row">
-            
 
-            <!-- Total Active Users Today -->
+            <!-- User Last Login Details -->
             <div class="col-md-4">
               <div class="card p-3 mb-3">
                 <div class="card-body">
-                  <h6 class="card-title text-primary">Total Active Users Today</h6>
-                  <p class="card-value fw-bold">{{ total_users_today }}</p>
+                  <h6 class="card-title text-primary">User Last Login Details</h6>
+                  <p class="card-value fw-bold">{{ user_last_login }}</p>
                 </div>
               </div>
             </div>
@@ -63,7 +71,6 @@
               </div>
             </div>
 
-
             <!-- Total Tasks -->
             <div class="col-md-4">
               <div class="card p-3 mb-3">
@@ -75,46 +82,57 @@
             </div>
           </div>
 
-
-          <!-- Second chart (optional) -->
+          <!-- Weekly User Activity Chart -->
           <div class="card p-3 mt-4">
             <div class="card-body">
-              <h6 class="card-title text-primary">Monthly New User Activity</h6>
+              <div class="chart-header">
+                <h6>User Weekly User Activity</h6>
+              </div>
               <canvas id="usageChart" width="400" height="200"></canvas>
             </div>
           </div>
 
-             <!-- Chart.js Script and Initialization -->
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-            <script>
-              const chartLabels = JSON.parse('{{ chart_labels|escapejs }}');
-              const chartData = JSON.parse('{{ chart_data|escapejs }}');
+          <!-- Chart.js Script and Initialization -->
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          <script>
+            const chartLabels = JSON.parse('{{ chart_labels|escapejs }}');
+            const chartData = JSON.parse('{{ chart_data|escapejs }}');
 
-              window.addEventListener('DOMContentLoaded', function () {
-                const ctx = document.getElementById('usageChart').getContext('2d');
-                new Chart(ctx, {
-                  type: 'bar',
-                  data: {
-                    labels: chartLabels,
-                    datasets: [{
-                      label: 'New Users',
-                      data: chartData,
-                      backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                      borderColor: 'rgba(54, 162, 235, 1)',
-                      borderWidth: 1
-                    }]
-                  },
-                  options: {
-                    responsive: true,
-                    scales: {
-                      y: {
-                        beginAtZero: true
+            window.addEventListener('DOMContentLoaded', function () {
+              const ctx = document.getElementById('usageChart').getContext('2d');
+              new Chart(ctx, {
+                type: 'bar',
+                data: {
+                  labels: chartLabels,
+                  datasets: [{
+                    label: 'User Activity (minutes)',
+                    data: chartData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                  }]
+                },
+                options: {
+                  responsive: true,
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      title: {
+                        display: true,
+                        text: 'Minutes'
+                      }
+                    },
+                    x: {
+                      title: {
+                        display: true,
+                        text: 'Date'
                       }
                     }
                   }
-                });
+                }
               });
-            </script>
+            });
+          </script>
 
         </div>
       </div>
@@ -123,4 +141,3 @@
 </div>
 
 {% endblock content %}
-
