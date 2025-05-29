@@ -10,6 +10,7 @@ from .models import Document
 from .forms import DocumentForm
 from django.http import HttpResponseForbidden
 from django.utils.timezone import localtime
+from django.db.models import Count
 
 
 def group(request): 
@@ -172,3 +173,43 @@ def TaskDetail(request, id):
         'task': task,
         'document': document,
     })
+
+
+@login_required
+def ranking(request, Room_join_code):
+    workspace = get_object_or_404(Room, join_code=Room_join_code)
+
+    # Ensure user is part of the room
+    if not (request.user == workspace.host or request.user in workspace.members.all()):
+        return redirect('home')
+
+    members = workspace.members.all()
+
+    ranking = (
+        todo.objects.filter(workspace=workspace, status=True, assigned_to__in=members)
+        .values('assigned_to__username')
+        .annotate(completed_count=Count('id'))
+        .order_by('-completed_count')
+    )
+
+    return render(request, "ranking.html", {
+        "workspace": workspace,
+        "ranking": ranking
+    })
+
+'''
+def document_list(request):
+    docs = Document.objects.all()
+    return render(request, 'todoapp/document_list.html', {'documents': docs})
+
+def document_create(request):
+    if request.method == 'POST':
+        form = DocumentForm(request.POST)
+        if form.is_valid():
+            doc = form.save(commit=False)
+            doc.save()
+            return redirect('home-page')
+    else:
+        form = DocumentForm()
+    return render(request, 'todoapp/document_form.html', {'form': form})
+'''
