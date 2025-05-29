@@ -9,6 +9,7 @@ from datetime import datetime
 from .models import Document
 from .forms import DocumentForm
 from django.http import HttpResponseForbidden
+from django.db.models import Count
 
 
 def group(request): 
@@ -125,6 +126,7 @@ def workspace(request, Room_join_code):
     tasks = todo.objects.filter(workspace=workspace)
     members = workspace.members.all()
 
+
     return render(request, "workspace.html", {
         "workspace": workspace,
         "tasks": tasks,
@@ -182,6 +184,28 @@ def TaskDetail(request, id):
         'doc_form': doc_form,
         'task': task,
         'document': document,
+    })
+
+@login_required
+def ranking(request, Room_join_code):
+    workspace = get_object_or_404(Room, join_code=Room_join_code)
+
+    # Ensure user is part of the room
+    if not (request.user == workspace.host or request.user in workspace.members.all()):
+        return redirect('home')
+
+    members = workspace.members.all()
+
+    ranking = (
+        todo.objects.filter(workspace=workspace, status=True, assigned_to__in=members)
+        .values('assigned_to__username')
+        .annotate(completed_count=Count('id'))
+        .order_by('-completed_count')
+    )
+
+    return render(request, "ranking.html", {
+        "workspace": workspace,
+        "ranking": ranking
     })
 
 '''

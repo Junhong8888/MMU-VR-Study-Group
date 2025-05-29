@@ -37,10 +37,11 @@
             align-items: center;
             height: 70px;
             background-color: #333;
+            
         }
 
 
-        #video-btn, #audio-btn {
+        #video-btn, #audio-btn , #etherpad , #ScreenSharing{
             width: 60px; /* Set equal width */
             height: 60px; /* Set equal height */
             border-radius: 50%; /* Make it circular */
@@ -76,12 +77,14 @@
   <body>
     <div class="row">
         <div class="col-md-2">
-            <h5>Local Video</h5>
-            <video id="localVideo" autoplay muted playsinline></video>
-        </div>
-        <div class="col-md-2">
             <h5>Remote Videos</h5>
             <div id="remoteVideos" class="row"></div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="col-md-7">
+            <h5>Local Video</h5>
+            <video id="localVideo" autoplay muted playsinline></video>
         </div>
     </div>
 
@@ -111,9 +114,12 @@
             <path d="M12 3v10.55A4 4 0 1014 17V4h4V3h-6z"/>
         </svg>
     </button>
-    <button id="etherpad"><a href="{% url 'chat:etherpad' %}">
+    <button id="ScreenSharing">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m853-221-53-53v-486H314l-80-80h566q33 0 56.5 23.5T880-760v480q0 18-6.5 32.5T853-221ZM127-833l73 73h-40v480h406L28-820l56-56L876-84l-56 56-172-172h-8v80H320v-80H160q-33 0-56.5-23.5T80-280v-480q0-37 23.5-55l23.5-18Zm237 351Zm195-33Z"/></svg>
+    </button>
+    <button id="etherpad" onclick="openNewTab()">
         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v240h-80v-200H520v-200H240v640h360v80H240Zm638 15L760-183v89h-80v-226h226v80h-90l118 118-56 57Zm-638-95v-640 640Z"/></svg>
-    </a></button>
+    </button>
 </div>
 
     {{ room_name|json_script:"room-name" }}
@@ -121,8 +127,10 @@
 
     <script>
     
+    function openNewTab(){
+        window.open("{% url 'chat:etherpad' %}","_blank");
+    }
         
-
     const videoOnIcon = `
         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
         <path d="M0 0h24v24H0V0z" fill="none"/>
@@ -150,11 +158,51 @@
         <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.1l2.43 2.43c.04-.17.07-.35.07-.5zm3.5 0c0 .97-.19 1.89-.52 2.74l1.58 1.58c.6-1.19.94-2.55.94-4.02 0-4.42-3.58-8-8-8-1.47 0-2.83.34-4.02.94l1.58 1.58A6.996 6.996 0 0116.5 12zM4.27 3L3 4.27l4.99 5V13c0 2.21 1.79 4 4 4 .51 0 .98-.1 1.42-.27l4.3 4.3 1.27-1.27L4.27 3z"/>
         </svg>`;
 
+        const ScreenSharingIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M320-400h80v-80q0-17 11.5-28.5T440-520h80v80l120-120-120-120v80h-80q-50 0-85 35t-35 85v80ZM160-240q-33 0-56.5-23.5T80-320v-440q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v440q0 33-23.5 56.5T800-240H160Zm0-80h640v-440H160v440Zm0 0v-440 440ZM40-120v-80h880v80H40Z"/></svg>`
+
+        const ScreenSharingOffIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m853-221-53-53v-486H314l-80-80h566q33 0 56.5 23.5T880-760v480q0 18-6.5 32.5T853-221ZM127-833l73 73h-40v480h406L28-820l56-56L876-84l-56 56-172-172h-8v80H320v-80H160q-33 0-56.5-23.5T80-280v-480q0-37 23.5-55l23.5-18Zm237 351Zm195-33Z"/></svg>`
+
+
     const user_username = JSON.parse(document.getElementById('user_username').textContent);
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
-        
-       let videoEnabled = true;
+
+        let screenStream;
+        let videoEnabled = true;
         let audioEnabled = true;
+
+       function replaceVideoTrack(newTrack) {
+            Object.values(peerConnections).forEach(pc => {
+                const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+                if (sender) sender.replaceTrack(newTrack);
+            });
+        }
+
+        // Screen Sharing Handler
+        document.getElementById('ScreenSharing').addEventListener('click', async () => {
+            try {
+                // Start screen sharing
+                screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                const screenTrack = screenStream.getVideoTracks()[0];
+
+                // Show screen locally (optional)
+                document.getElementById("localVideo").srcObject = screenStream;
+
+                // Replace video track in peers
+                replaceVideoTrack(screenTrack);
+
+                // When screen sharing stops, revert to camera
+                screenTrack.onended = () => {
+                    // Restore camera preview
+                    document.getElementById("localVideo").srcObject = localStream;
+
+                    // Replace video track in peers with the camera track
+                    const cameraTrack = localStream.getVideoTracks()[0];
+                    replaceVideoTrack(cameraTrack);
+                };
+            } catch (err) {
+                console.error("Error sharing screen:", err);
+            }
+        });
 
         document.getElementById('video-btn').addEventListener('click', () => {
             if (localStream) {
