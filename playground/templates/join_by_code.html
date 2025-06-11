@@ -7,7 +7,7 @@
     <div class="navbar">
     <div class="brand-title">MMU VR Group</div>
     <div class="nav-links">
-    <a href="{% url 'logout' %}" id="toggle-logout">Create Group</a>
+    <a href="{% url 'grouping:create_room' %}" style="color:white">Create Workspace</a>
     </div>
 </div>
 
@@ -15,7 +15,7 @@
 
 {% block content %}
 <div class="container">
-    <h2>Join Group</h2>
+    <h2>Join Workspace</h2>
     <form method="POST" action="{% url 'grouping:join_group' %}">
         {% csrf_token %}
         <div class="form-group mb-3">

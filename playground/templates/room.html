@@ -5,8 +5,8 @@
 {% block navbar %}
     <div class="navbar">
     <div class="brand-title">MMU VR Group</div>
-    <div>
-    <a href="{% url 'grouping:join_group' %}">Join Group</a>
+    <div class="nav-links">
+    <a href="{% url 'grouping:join_group' %}" style="color:white">Join Workspace</a>
     </div>
 </div>
 
@@ -17,6 +17,7 @@
 <body>
 <div class="container">
   <!-- Create Room Form -->
+   <h2>Create Workspace</h2>
   <form method="POST" action="{% url 'grouping:create_room' %}" id="createForm" class="active">
       {% csrf_token %}
       <input type="hidden" name="form_type" value="create_group">

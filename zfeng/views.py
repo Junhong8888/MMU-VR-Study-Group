@@ -4,7 +4,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .models import todo
 from django.contrib.auth.decorators import login_required
-from .forms import TodoForm
+from .forms import TodoForm , TaskForm , DocumentForm
+from grouping.models import Document
+
 # Create your views here.
 
 
@@ -37,17 +39,36 @@ def Update(request, id):
     return redirect('zfeng:todolist')
 
 def TaskDetail(request, id):
-    task = get_object_or_404(todo, user=request.user, id=id)
+    task = get_object_or_404(todo, id=id,)
+    
+ 
+
+    # Ensure document exists
+    if task.document is None:
+        document = Document.objects.create(title=f'Document for task {task.todo_name}')
+        task.document = document
+        task.save()
+    else:
+        document = task.document
 
     if request.method == 'POST':
-        form = TodoForm(request.POST, instance=task)
-        if form.is_valid():
-            form.save()
+        todo_form = TodoForm(request.POST, instance=task,  prefix="task")
+        doc_form = DocumentForm(request.POST, request.FILES, instance=document, prefix="doc")
+
+        if todo_form.is_valid() and doc_form.is_valid():
+            todo_form.save()
+            doc_form.save()
             return redirect('zfeng:todolist')
     else:
-        form = TodoForm(instance=task)
+        todo_form = TodoForm(instance=task,  prefix="task")
+        doc_form = DocumentForm(instance=document, prefix="doc")
 
-    return render(request, 'task_detail.html', {'form': form, 'task': task})
+    return render(request, 'task_detail_s.html', {
+        'todo_form': todo_form,
+        'doc_form': doc_form,
+        'task': task,
+        'document': document,
+    })
 
 
 

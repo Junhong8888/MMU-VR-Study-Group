@@ -20,10 +20,14 @@ class JoinCodeForm(forms.Form):
 class TaskForm(forms.ModelForm):
     class Meta:
         model = todo
-        fields = ['todo_name', 'assigned_to', 'due_date']
-        widgets = {
-            'due_date': forms.DateInput(attrs={'type': 'date'}),
-        }
+        fields = ['todo_name', 'assigned_to', 'due_date', 'status']
+
+    def __init__(self, *args, **kwargs):
+        workspace = kwargs.pop('workspace', None)
+        super().__init__(*args, **kwargs)
+
+        if workspace:
+            self.fields['assigned_to'].queryset = workspace.members.all()
 
 class DocumentForm(forms.ModelForm):
     class Meta:

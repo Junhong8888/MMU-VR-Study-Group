@@ -684,6 +684,7 @@
 
             if (data.type === "new-user") {
                 if (data.username !== user_username) {
+                    document.querySelector('#chat-text').value += `${data.username} has joined the meeting.\n`;
                     await createOfferForUser(data.username);
                 }
             }

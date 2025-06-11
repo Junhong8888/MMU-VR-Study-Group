@@ -4,8 +4,8 @@
 <div class="navbar">
     <div class="brand-title">MMU VR Group</div>
     <div class="nav-links">
-      <a href="#">Create Group</a>
-      <a href="#">Join Group</a>
+      <a href="#"></a>
+      <a href="#"></a>
     </div>
   </div>
   {% endblock %}
@@ -83,7 +83,7 @@
     color: white;
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 1000px) {
     .todo-container {
       padding: 30px 20px;
     }
@@ -93,15 +93,18 @@
     }
   }
 </style>
-
+<div class="main-content">
 <div class="todo-container" style="color:black;">
-  <div class="todo-title">📋 My Fancy To-Do List</div>
+  <div class="todo-title">📋 To-Do List</div>
 
   <form method="POST" class="row g-3 align-items-center mb-4">
     {% csrf_token %}
-    <div class="col-md-9">
+    <div class="col-md-6">
       <input type="text" class="form-control" name="task" placeholder="What do you need to do?" />
     </div>
+    <div class="col-md-3">
+        <input type="date" name="due_date" class="form-control">
+      </div>
     <div class="col-md-3">
       <button type="submit" class="btn btn-primary w-100">Add Task</button>
     </div>
@@ -112,7 +115,6 @@
       <thead class="table-light">
         <tr>
           <th>Task</th>
-          <th>Assigned To</th>
           <th>Due Date</th>
           <th>Status</th>
           <th>Actions</th>
@@ -123,7 +125,6 @@
           {% if i.todo_name %}
             <tr>
               <td>{{ i.todo_name }}</td>
-              <td>{{ i.assigned_to.username }}</td>
               <td>{{ i.due_date|default:"None" }}</td>
               <td>
                 {% if i.status %}
@@ -143,6 +144,7 @@
       </tbody>
     </table>
   </div>
+</div>
 </div>
 {% endblock %}
 

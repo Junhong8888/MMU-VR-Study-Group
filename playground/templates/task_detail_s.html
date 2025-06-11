@@ -1,0 +1,14 @@
+<h2>Edit Task: {{ task.todo_name }}</h2>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  {{ todo_form.as_p }}
+
+  <hr>
+
+  <h2>Edit Document</h2>
+  {{ doc_form.media }}  {# CKEditor assets #}
+  {{ doc_form.as_p }}
+
+  <button type="submit" class="btn btn-primary mt-3">Save All</button>
+</form>

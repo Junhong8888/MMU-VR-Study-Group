@@ -1,9 +1,8 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Topic, Room
-from .forms import GroupForm,JoinCodeForm
+from .forms import GroupForm,JoinCodeForm,TaskForm
 from zfeng.models import todo
-from zfeng.forms import TodoForm
 from django.contrib.auth.models import User
 from datetime import datetime
 from .models import Document
@@ -169,7 +168,7 @@ def TaskDetail(request, id):
         document = task.document
 
     if request.method == 'POST':
-        todo_form = TodoForm(request.POST, instance=task, workspace=workspace, prefix="task")
+        todo_form = TaskForm(request.POST, instance=task, workspace=workspace, prefix="task")
         doc_form = DocumentForm(request.POST, request.FILES, instance=document, prefix="doc")
 
         if todo_form.is_valid() and doc_form.is_valid():
@@ -177,7 +176,7 @@ def TaskDetail(request, id):
             doc_form.save()
             return redirect('grouping:workspace', Room_join_code=workspace.join_code)
     else:
-        todo_form = TodoForm(instance=task, workspace=workspace, prefix="task")
+        todo_form = TaskForm(instance=task, workspace=workspace, prefix="task")
         doc_form = DocumentForm(instance=document, prefix="doc")
 
     return render(request, 'task_detail.html', {

@@ -8,6 +8,7 @@
     <table class="table">
       <thead>
         <tr>
+          <th>Place</th>
           <th>Username</th>
           <th>Completed Tasks</th>
         </tr>
@@ -15,6 +16,7 @@
       <tbody>
         {% for entry in ranking %}
         <tr>
+          <td>{{ forloop.counter }}</td>
           <td>{{ entry.assigned_to__username }}</td>
           <td>{{ entry.completed_count }}</td>
         </tr>

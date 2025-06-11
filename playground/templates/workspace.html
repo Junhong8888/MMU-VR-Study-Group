@@ -4,10 +4,10 @@
 
   <div class="navbar">
     <div class="brand-title">MMU VR Group</div>
-    <div class="nav-links">
+    <div class="nav-links" style="position: relative;">
       <a href="{% url 'chat:room' room_name=workspace.roomname %}">Meeting</a>
       <a href="{% url 'grouping:ranking' Room_join_code=workspace.join_code %}">Ranking</a>
-      <a href="{% url 'login_signup' %}">Login</a>
+      
     </div>
   </div>
 
@@ -18,6 +18,7 @@
   <div class="container">
     <h2>Workspace: {{ workspace.roomname }}</h2>
 
+    <h4>Join Code: {{ workspace.join_code }}</h4>
     <!-- Task creation form -->
     <form method="POST" class="row g-3 justify-content-center align-items-center mb-4">
       {% csrf_token %}
@@ -87,4 +88,109 @@
     </table>
   </div>
 </div>
+
+<!-- Chat Popup Window -->
+<div id="chat-popup" style="
+    display: none;
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    width: 300px;
+    height: 400px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    flex-direction: column;
+  ">
+  <div style="
+      padding: 10px;
+      background: #007bff;
+      color: white;
+      font-weight: bold;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    ">
+    Chat
+    <button id="chat-close" style="
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      font-weight: bold;
+    ">×</button>
+  </div>
+
+  <div id="chat-messages" style="
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      font-size: 14px;
+      background: #f9f9f9;
+    ">
+    <!-- Messages will appear here -->
+    <p><em>No messages yet.</em></p>
+  </div>
+
+  <form id="chat-form" style="display: flex; padding: 10px; border-top: 1px solid #ddd;">
+    <input type="text" id="chat-input" placeholder="Type a message..." style="
+      flex: 1; 
+      padding: 6px 8px; 
+      border: 1px solid #ccc; 
+      border-radius: 4px;
+      font-size: 14px;
+    ">
+    <button type="submit" style="
+      margin-left: 6px;
+      background: #007bff;
+      border: none;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    ">Send</button>
+  </form>
+</div>
+
+<script>
+  const chatToggle = document.getElementById('chat-toggle');
+  const chatPopup = document.getElementById('chat-popup');
+  const chatClose = document.getElementById('chat-close');
+  const chatForm = document.getElementById('chat-form');
+  const chatInput = document.getElementById('chat-input');
+  const chatMessages = document.getElementById('chat-messages');
+
+  chatToggle.addEventListener('click', () => {
+    chatPopup.style.display = chatPopup.style.display === 'flex' ? 'none' : 'flex';
+  });
+
+  chatClose.addEventListener('click', () => {
+    chatPopup.style.display = 'none';
+  });
+
+  chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const message = chatInput.value.trim();
+    if (!message) return;
+
+    // Append the message to chatMessages
+    const msgElem = document.createElement('p');
+    msgElem.textContent = message;
+    msgElem.style.padding = '4px 8px';
+    msgElem.style.background = '#007bff';
+    msgElem.style.color = 'white';
+    msgElem.style.borderRadius = '12px';
+    msgElem.style.marginBottom = '6px';
+    msgElem.style.alignSelf = 'flex-end';
+    chatMessages.appendChild(msgElem);
+
+    chatInput.value = '';
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  });
+</script>
 {% endblock %}

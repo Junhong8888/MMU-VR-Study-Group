@@ -47,11 +47,12 @@ INSTALLED_APPS = [
     'grouping',
     'chat',
     'channels',
-    'dashboard',
     'zfeng',
     'debug_toolbar',
     'todoapp',
-    'ckeditor'
+    'ckeditor',
+    'workspace_chat',
+    'dashboard.apps.DashboardConfig',
 ]
 
 MIDDLEWARE = [
