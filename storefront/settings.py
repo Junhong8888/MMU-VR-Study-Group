@@ -172,5 +172,5 @@ CACHES = {
 
 CSRF_TRUSTED_ORIGINS = [
     
-    'https://industrious-balance-production-704f.up.railway.app/'
+    'https://industrious-balance-production-704f.up.railway.app'
 ]
