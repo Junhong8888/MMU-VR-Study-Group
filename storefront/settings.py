@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-@kdz)3*0&%_rp_5&ujr@6@@f=l%qwic3%9f8tq=(p5ev49y6ec
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'localhost', 'nginx', '127.0.0.1'
+    'localhost', 'nginx', '127.0.0.1' , 'powerful-respect-production.up.railway.app'
 ]
 
 STATIC_URL = '/static/'
@@ -171,5 +171,6 @@ CACHES = {
 }
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://233b-60-48-95-135.ngrok-free.app",
+    
+    'https://powerful-respect-production.up.railway.app'
 ]
