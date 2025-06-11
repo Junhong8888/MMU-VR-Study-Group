@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-@kdz)3*0&%_rp_5&ujr@6@@f=l%qwic3%9f8tq=(p5ev49y6ec
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    'localhost', 'nginx', '127.0.0.1' , 'powerful-respect-production.up.railway.app'
+    'localhost', 'nginx', '127.0.0.1' , 'industrious-balance-production-704f.up.railway.app'
 ]
 
 STATIC_URL = '/static/'
@@ -172,5 +172,5 @@ CACHES = {
 
 CSRF_TRUSTED_ORIGINS = [
     
-    'https://powerful-respect-production.up.railway.app'
+    'https://industrious-balance-production-704f.up.railway.app/'
 ]
