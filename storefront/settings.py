@@ -27,8 +27,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
-    "3dcc-60-48-95-135.ngrok-free.app",
+    "233b-60-48-95-135.ngrok-free.app",
 ]
+
 
 
 # Application definition
@@ -167,5 +168,5 @@ CACHES = {
 }
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://3dcc-60-48-95-135.ngrok-free.app",
+    "https://233b-60-48-95-135.ngrok-free.app",
 ]

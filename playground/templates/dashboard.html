@@ -42,13 +42,12 @@
 
           <div class="row">
             
-
-            <!-- Total Active Users Today -->
+            <!-- User Last Login Details -->
             <div class="col-md-4">
               <div class="card p-3 mb-3">
                 <div class="card-body">
-                  <h6 class="card-title text-primary">Total Active Users Today</h6>
-                  <p class="card-value fw-bold">{{ total_users_today }}</p>
+                  <h6 class="card-title text-primary">User Last Login Details</h6>
+                  <p class="card-value fw-bold">{{ user_last_login }}</p>
                 </div>
               </div>
             </div>
@@ -79,7 +78,7 @@
           <!-- Second chart (optional) -->
           <div class="card p-3 mt-4">
             <div class="card-body">
-              <h6 class="card-title text-primary">Monthly New User Activity</h6>
+              <h6 class="card-title text-primary">Weekly User Activity</h6>
               <canvas id="usageChart" width="400" height="200"></canvas>
             </div>
           </div>
@@ -97,7 +96,7 @@
                   data: {
                     labels: chartLabels,
                     datasets: [{
-                      label: 'New Users',
+                      label: 'Users',
                       data: chartData,
                       backgroundColor: 'rgba(54, 162, 235, 0.6)',
                       borderColor: 'rgba(54, 162, 235, 1)',
