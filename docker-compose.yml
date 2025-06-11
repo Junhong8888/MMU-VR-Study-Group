@@ -1,0 +1,46 @@
+
+services:
+  django:
+    build: .
+    working_dir: /app
+    volumes:
+      - ./MMU-VR-Study-Group:/app
+      - C:/Users/lowju/Desktop/project/MMU-VR-Study-Group/staticfiles:/app/staticfiles
+    ports:
+      - "8000:8000"
+    command: daphne -b 0.0.0.0 -p 8000 storefront.asgi:application
+    environment:
+      - DJANGO_SETTINGS_MODULE=storefront.settings
+
+  redis:
+    image: redis:7
+    expose:
+      - "6379"
+
+  etherpad:
+    image: etherpad/etherpad:latest
+    expose:
+      - "9001"
+
+  aframe:
+    image: nginx:alpine
+    volumes:
+      - ./aframe:/usr/share/nginx/html:ro
+    expose:
+      - "80"
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    depends_on:
+      - django
+      - etherpad
+      - aframe
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - C:/Users/lowju/Desktop/project/MMU-VR-Study-Group/staticfiles:/app/staticfiles
+
+volumes:
+  static_volume:
+  
