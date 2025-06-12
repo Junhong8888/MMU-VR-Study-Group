@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import urllib.parse as urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -152,14 +153,17 @@ CHANNEL_LAYERS = {
     }
 }
 
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("localhost", 6379)],
+redis_url = os.getenv("REDIS_URL")
+if redis_url:
+    url = urlparse.urlparse(redis_url)
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": ['redis://red-d153c4nfte5s738oisj0:6379'],  # ✅ Use the variable, not raw string
+            },
         },
-    },
-}
+    }
 
 LOGIN_URL = '/users/login_signup/'
 
