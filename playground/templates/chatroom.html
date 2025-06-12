@@ -450,7 +450,7 @@
     <script>
     
     function openNewTab(){
-        window.open("{% url 'chat:etherpad' %}","_blank");
+        window.open("{% url 'etherpad' room_name=room.roomname %}" ,"_blank");
     }
 
     function reverse(){
