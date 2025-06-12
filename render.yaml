@@ -21,3 +21,6 @@ services:
     repo: https://github.com/ether/etherpad-lite
     plan: starter
     dockerfilePath: ./etherpad/Dockerfile
+    envVars:
+  - key: PORT
+    value: 9001
