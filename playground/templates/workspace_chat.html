@@ -1,122 +1,201 @@
-<!-- Chat Button -->
-<style>
-  #chat-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 300px;
-    font-family: Arial, sans-serif;
-  }
-  #chat-button {
-    background-color: #007bff;
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  #chat-window {
-    display: none;
-    margin-top: 10px;
-    border: 1px solid #ddd;
-    height: 350px;
-    background: white;
-    border-radius: 5px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-  }
-  #chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-  }
-  #chat-input-container {
-    padding: 5px;
-  }
-  #chat-input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-</style>
+{% extends 'test.html' %}
 
-<div id="chat-container">
-  <button id="chat-button">Chat</button>
-  <div id="chat-window">
-    <div id="chat-messages"></div>
-    <div id="chat-input-container">
-      <input id="chat-input" type="text" placeholder="Type a message..." autocomplete="off" />
+{% block navbar %}
+  <div class="navbar" style="position: relative;">
+    <div class="brand-title">MMU VR Group</div>
+    <div class="nav-links" style="position: relative;">
+      <a href="{% url 'chat:room' room_name=workspace.roomname %}">Meeting</a>
+      <a href="{% url 'grouping:ranking' Room_join_code=workspace.join_code %}">Ranking</a>
+      <a href="{% url 'login_signup' %}">Login</a>
+      <button id="chat-toggle" style="position: absolute; top: 100%; right: 0; margin-top: 8px; padding: 6px 12px; border-radius: 20px; background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">💬</button>
     </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+  <div class="container">
+    <h2>Workspace: {{ workspace.roomname }}</h2>
+
+    <!-- Task Creation Form -->
+    <form method="POST" class="row g-3 justify-content-center align-items-center mb-4">
+      {% csrf_token %}
+      <div class="col-md-4">
+        <input type="text" class="form-control" name="task" placeholder="Enter a task here" required>
+      </div>
+      <div class="col-md-3">
+        <select name="assigned_to" class="form-select">
+          <option value="">Assign to...</option>
+          {% for member in members %}
+            <option value="{{ member.id }}">{{ member.username }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <input type="date" name="due_date" class="form-control">
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Add Task</button>
+      </div>
+    </form>
+
+    <!-- Task List Table -->
+    <table class="table mb-4">
+      <thead>
+        <tr>
+          <th>Todo item</th>
+          <th>Assigned to</th>
+          <th>Due date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in tasks %}
+          {% if task.todo_name %}
+          <tr>
+            <td>{{ task.todo_name }}</td>
+            <td>{{ task.assigned_to.username|default:"-" }}</td>
+            <td>{{ task.due_date|date:"Y-m-d"|default:"-" }}</td>
+            <td>
+              {% if task.status %}
+                <span class="text-success">Completed</span>
+              {% else %}
+                <span class="text-warning">In progress</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if user in task.workspace.members.all %}
+                {% if not task.status %}
+                  <a href="{% url 'grouping:update' task.id %}" class="btn btn-success btn-sm">Mark as Done</a>
+                {% endif %}
+                <a href="{% url 'grouping:task-detail' task.id %}" class="btn btn-info btn-sm">Edit</a>
+                <a href="{% url 'grouping:delete' task.id %}" class="btn btn-danger btn-sm">Delete</a>
+              {% endif %}
+            </td>
+          </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 
+<!-- Chat Popup -->
+<div id="chat-popup" style="
+    display: none;
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    width: 300px;
+    height: 400px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+">
+  <div style="padding: 10px; background: #007bff; color: white; font-weight: bold; display: flex; justify-content: space-between; align-items: center; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+    Chat
+    <button id="chat-close" style="background: none; border: none; color: white; font-size: 18px; font-weight: bold; cursor: pointer;">×</button>
+  </div>
+
+  <div id="chat-messages" style="flex: 1; padding: 10px; overflow-y: auto; font-size: 14px; background: #f9f9f9;">
+    <p><em>No messages yet.</em></p>
+  </div>
+
+  <form id="chat-form" style="display: flex; padding: 10px; border-top: 1px solid #ddd;">
+    <input type="text" id="chat-input" placeholder="Type a message..." style="flex: 1; padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;">
+    <button type="submit" style="margin-left: 6px; background: #007bff; border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Send</button>
+  </form>
+</div>
+
 <script>
-  (function() {
-    const chatButton = document.getElementById('chat-button');
-    const chatWindow = document.getElementById('chat-window');
-    const chatMessages = document.getElementById('chat-messages');
-    const chatInput = document.getElementById('chat-input');
+  const chatToggle = document.getElementById('chat-toggle');
+  const chatPopup = document.getElementById('chat-popup');
+  const chatClose = document.getElementById('chat-close');
+  const chatForm = document.getElementById('chat-form');
+  const chatInput = document.getElementById('chat-input');
+  const chatMessages = document.getElementById('chat-messages');
 
-    // Toggle chat window on button click
-    chatButton.addEventListener('click', () => {
-      if (chatWindow.style.display === 'none' || chatWindow.style.display === '') {
-        chatWindow.style.display = 'flex';
-        chatInput.focus();
-      } else {
-        chatWindow.style.display = 'none';
-      }
-    });
+  const workspaceId = "{{ workspace.id }}";
 
-    // Replace with your workspace ID from backend template context or JS variable
-    const workspaceId = "{{ workspace.id }}";
+  const socket = new WebSocket(
+    (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
+    window.location.host +
+    `/ws/chat/${workspaceId}/`
+  );
 
-    // WebSocket URL (adjust if your site uses HTTPS or different host)
-    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-    const chatSocket = new WebSocket(
-      wsScheme + '://' + window.location.host +
-      '/ws/chat/' + workspaceId + '/'
-    );
+  socket.onopen = () => console.log('WebSocket connected.');
+  socket.onclose = () => console.error('WebSocket closed unexpectedly.');
+  socket.onerror = (e) => console.error('WebSocket error:', e);
 
-    // Load old messages with fetch
-    function loadOldMessages() {
-      fetch(`/api/chat/${workspaceId}/messages/`)
+  socket.onmessage = function (e) {
+    const data = JSON.parse(e.data);
+    const msgElem = document.createElement('p');
+    msgElem.textContent = data.message;
+    msgElem.style.padding = '4px 8px';
+    msgElem.style.background = '#eee';
+    msgElem.style.borderRadius = '12px';
+    msgElem.style.marginBottom = '6px';
+    msgElem.style.alignSelf = 'flex-start';
+    chatMessages.appendChild(msgElem);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  };
+
+  chatToggle.addEventListener('click', () => {
+    const isOpening = chatPopup.style.display !== 'flex';
+    chatPopup.style.display = isOpening ? 'flex' : 'none';
+
+    if (isOpening) {
+      fetch(`/load_messages/${workspaceId}/`)
         .then(response => response.json())
         .then(data => {
           chatMessages.innerHTML = '';
-          data.forEach(msg => {
-            const el = document.createElement('div');
-            el.textContent = `${msg.user} (${msg.timestamp}): ${msg.content}`;
-            chatMessages.appendChild(el);
-          });
+          if (data.length === 0) {
+            chatMessages.innerHTML = '<p><em>No messages yet.</em></p>';
+          } else {
+            data.forEach(msg => {
+              const msgElem = document.createElement('p');
+              msgElem.textContent = `${msg.user}: ${msg.content}`;
+              msgElem.style.padding = '4px 8px';
+              msgElem.style.background = '#eee';
+              msgElem.style.borderRadius = '12px';
+              msgElem.style.marginBottom = '6px';
+              msgElem.style.alignSelf = 'flex-start';
+              chatMessages.appendChild(msgElem);
+            });
+          }
           chatMessages.scrollTop = chatMessages.scrollHeight;
         });
     }
+  });
 
-    loadOldMessages();
+  chatClose.addEventListener('click', () => {
+    chatPopup.style.display = 'none';
+  });
 
-    chatSocket.onmessage = function(e) {
-      const data = JSON.parse(e.data);
-      const el = document.createElement('div');
-      el.textContent = `${data.user}: ${data.message}`;
-      chatMessages.appendChild(el);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    };
+  chatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const message = chatInput.value.trim();
+    if (!message) return;
 
-    chatSocket.onclose = function(e) {
-      console.error('Chat socket closed unexpectedly');
-    };
+    socket.send(JSON.stringify({ message }));
 
-    chatInput.addEventListener('keypress', function(e) {
-      if (e.key === 'Enter' && chatInput.value.trim() !== '') {
-        chatSocket.send(JSON.stringify({
-          'message': chatInput.value.trim()
-        }));
-        chatInput.value = '';
-      }
-    });
-  })();
+    const msgElem = document.createElement('p');
+    msgElem.textContent = `You: ${message}`;
+    msgElem.style.padding = '4px 8px';
+    msgElem.style.background = '#007bff';
+    msgElem.style.color = 'white';
+    msgElem.style.borderRadius = '12px';
+    msgElem.style.marginBottom = '6px';
+    msgElem.style.alignSelf = 'flex-end';
+    chatMessages.appendChild(msgElem);
+
+    chatInput.value = '';
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  });
 </script>
+{% endblock %}

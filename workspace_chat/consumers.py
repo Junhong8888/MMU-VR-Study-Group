@@ -2,13 +2,13 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from .models import ChatMessage, Workspace
+from django.contrib.auth.models import AnonymousUser
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.workspace_id = self.scope['url_route']['kwargs']['workspace_id']
         self.room_group_name = f'chat_{self.workspace_id}'
 
-        # Join room group
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
@@ -17,42 +17,50 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        # Leave room group
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
 
     async def receive(self, text_data):
-        data = json.loads(text_data)
-        message = data['message']
-        user = self.scope['user']
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
+        user = self.scope["user"]
 
-        if user.is_anonymous:
-            # Optionally reject connection or ignore anonymous messages
-            return
+        if not isinstance(user, AnonymousUser):
+            workspace = await self.get_workspace(self.workspace_id)
+            await self.save_message(user, workspace, message)
 
-        # Save the message to DB asynchronously
-        await self.save_message(user, message, self.workspace_id)
-
-        # Broadcast message to the room group
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 'type': 'chat_message',
-                'message': message,
-                'user': user.username,
+                'message': f'{user.username}: {message}'
             }
         )
 
     async def chat_message(self, event):
-        # Receive message from room group
         await self.send(text_data=json.dumps({
-            'message': event['message'],
-            'user': event['user'],
+            'message': event['message']
         }))
 
     @database_sync_to_async
-    def save_message(self, user, message, workspace_id):
-        workspace = Workspace.objects.get(id=workspace_id)
-        ChatMessage.objects.create(user=user, content=message, workspace=workspace)
+    def get_workspace(self, workspace_id):
+        return Workspace.objects.get(id=workspace_id)
+
+    @database_sync_to_async
+    def save_message(self, user, workspace, message):
+        ChatMessage.objects.create(user=user, workspace=workspace, content=message)
+
+
+### views.py
+from django.http import JsonResponse
+from .models import ChatMessage
+
+def load_messages(request, workspace_id):
+    messages = ChatMessage.objects.filter(workspace_id=workspace_id).select_related('user').order_by('timestamp')
+    data = [
+        {'user': message.user.username, 'content': message.content, 'timestamp': message.timestamp.isoformat()}
+        for message in messages
+    ]
+    return JsonResponse(data, safe=False)

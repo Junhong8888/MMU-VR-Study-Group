@@ -1,34 +1,24 @@
-"""
-URL configuration for storefront project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
-from django.urls import path , include
+from django.urls import path, include
+from workspace_chat import views as chat_views
 import debug_toolbar
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('playground/',include('playground.urls')),
+    path('playground/', include('playground.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
-    path('',include('users.urls')),
-    path('users/',include('users.urls')),
-    path('chat/',include('chat.urls')),
-    path('grouping/',include('grouping.urls')),
-    #path('test/',include('test.urls')),
-    path('zfeng/',include('zfeng.urls')),
-    path('dashboard/',include('dashboard.urls')),
-    path('todoapp',include('todoapp.urls')),
+    path('', include('users.urls')),
+    path('users/', include('users.urls')),
+    path('chat/', include('chat.urls')),
+    path('grouping/', include('grouping.urls')),
+    path('zfeng/', include('zfeng.urls')),
+    path('dashboard/', include('dashboard.urls')),
+    path('todoapp', include('todoapp.urls')),
+
+    # These both use load_messages from workspace_chat.views
+    path('load_messages/<int:workspace_id>/', chat_views.load_messages, name='load_messages'),
+    path('api/chat/<int:workspace_id>/messages/', chat_views.load_messages, name='load_messages'),
+
+    path('workspace_chat/', include('workspace_chat.urls')),
     path('users/', include('django.contrib.auth.urls')),
-] 
+]

@@ -1,0 +1,18 @@
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+
+# SQLite database
+db.sqlite3
+
+# Django migrations
+*/migrations/__pycache__/
+*.log
+
+# VS Code settings (optional)
+.vscode/

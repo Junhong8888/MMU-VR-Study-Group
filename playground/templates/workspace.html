@@ -119,6 +119,7 @@
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     z-index: 1000;
     flex-direction: column;
+    display: flex;
   ">
   <div style="
       padding: 10px;
@@ -149,7 +150,6 @@
       font-size: 14px;
       background: #f9f9f9;
     ">
-    <!-- Messages will appear here -->
     <p><em>No messages yet.</em></p>
   </div>
 
@@ -189,12 +189,41 @@
     chatPopup.style.display = 'none';
   });
 
+  const workspaceId = "{{ workspace.id }}";
+  const socket = new WebSocket(
+    (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
+    window.location.host +
+    `/ws/chat/${workspaceId}/`
+  );
+
+  socket.onopen = function () {
+    console.log('WebSocket connected.');
+  };
+
+  socket.onmessage = function (e) {
+    const data = JSON.parse(e.data);
+    const msgElem = document.createElement('p');
+    msgElem.textContent = data.message;
+    msgElem.style.padding = '4px 8px';
+    msgElem.style.background = '#eee';
+    msgElem.style.borderRadius = '12px';
+    msgElem.style.marginBottom = '6px';
+    msgElem.style.alignSelf = 'flex-start';
+    chatMessages.appendChild(msgElem);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  };
+
+  socket.onclose = function () {
+    console.error('WebSocket closed unexpectedly.');
+  };
+
   chatForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const message = chatInput.value.trim();
     if (!message) return;
 
-    // Append the message to chatMessages
+    socket.send(JSON.stringify({ message }));
+
     const msgElem = document.createElement('p');
     msgElem.textContent = message;
     msgElem.style.padding = '4px 8px';

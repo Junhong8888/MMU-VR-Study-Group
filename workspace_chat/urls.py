@@ -1,6 +1,6 @@
 from django.urls import path
-from . import views
+from . import views  # ✅ Import the views module
 
 urlpatterns = [
-    path('api/chat/<int:workspace_id>/messages/', views.load_messages, name='load_messages'),
+    path('load_messages/<int:workspace_id>/', views.load_messages, name='load_messages'),
 ]

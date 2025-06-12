@@ -12,6 +12,9 @@ from django.http import HttpResponseForbidden
 from django.utils.timezone import localtime
 from django.db.models import Count
 
+# ✅ Optional: Only needed if you call it from Python
+from workspace_chat.views import load_messages
+
 
 def group(request): 
     return render(request, 'room.html', {})
@@ -110,7 +113,6 @@ def workspace(request, Room_join_code):
     tasks = todo.objects.filter(workspace=workspace)
     members = workspace.members.all()
 
-    # Get last login time of the current user
     user = request.user
     last_login = user.last_login
     last_login_display = localtime(last_login).strftime("%Y-%m-%d %H:%M:%S") if last_login else "Never logged in"
@@ -179,7 +181,6 @@ def TaskDetail(request, id):
 def ranking(request, Room_join_code):
     workspace = get_object_or_404(Room, join_code=Room_join_code)
 
-    # Ensure user is part of the room
     if not (request.user == workspace.host or request.user in workspace.members.all()):
         return redirect('home')
 
@@ -196,20 +197,3 @@ def ranking(request, Room_join_code):
         "workspace": workspace,
         "ranking": ranking
     })
-
-'''
-def document_list(request):
-    docs = Document.objects.all()
-    return render(request, 'todoapp/document_list.html', {'documents': docs})
-
-def document_create(request):
-    if request.method == 'POST':
-        form = DocumentForm(request.POST)
-        if form.is_valid():
-            doc = form.save(commit=False)
-            doc.save()
-            return redirect('home-page')
-    else:
-        form = DocumentForm()
-    return render(request, 'todoapp/document_form.html', {'form': form})
-'''
