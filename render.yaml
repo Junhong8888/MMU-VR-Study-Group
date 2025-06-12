@@ -20,4 +20,4 @@ services:
     env: docker
     repo: https://github.com/ether/etherpad-lite
     plan: starter
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: ./etherpad/Dockerfile
