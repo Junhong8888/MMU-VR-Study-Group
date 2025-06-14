@@ -1,0 +1,924 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <style>
+        video {
+          width: 100%;
+          border-radius: 10px;
+          background-color: black;
+        }
+        #chat-container {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 25%;
+            height: 100vh;
+            background-color: #f8f9fa;
+            border-left: 1px solid #dee2e6;
+            padding: 0px 15px 15px 15px;
+            overflow-y: hidden;
+            z-index: 1000;
+        }
+
+        #remoteVideos {
+            display: flex;
+            flex-direction: row;   /* Ensure videos are in a row */
+            gap: 10px;             /* Space between videos */
+            align-items: center;   
+            width:100%;
+            height:220px;
+            padding: 5px 0;
+        }
+
+        #remoteVideos video {
+            height: 100%;         /* Make videos fill the container height */
+            width: auto;          /* Keep aspect ratio, or set to 100% for stretching */
+            object-fit: contain;  /* or 'cover' if you want to crop instead of letterbox */
+            border-radius: 10px;
+            background: black;
+        }
+
+
+        #chat-container label {
+            margin-top: 0 !important; /* Ensure label isn't pushing down */
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            height: 70px;
+            background-color: #333;
+            
+        }
+
+        #localVideo {
+            width: 100%;
+            height: 220px; /* or whatever is appropriate */
+            object-fit: cover; /* or "contain" for letterboxing */
+            }
+
+
+        #video-btn, #audio-btn , #etherpad , #ScreenSharing , #endcall{
+            width: 60px; /* Set equal width */
+            height: 60px; /* Set equal height */
+            border-radius: 50%; /* Make it circular */
+            border: none; /* Remove border */
+            background-color: #222533; /* Button background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0.5em; /* Adjust spacing between buttons */
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Add shadow */
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth hover effect */
+            overflow: hidden; 
+        }
+
+        #video-btn svg, #audio-btn svg {
+            fill: #e3e3e3; /* Icon color */
+            width: 50%; /* Scale icon size relative to the button */
+            height: 50%; /* Scale icon size relative to the button */
+        }
+
+        /* Hover effect */
+        #video-btn:hover, #audio-btn:hover {
+            transform: scale(1.1); /* Slightly enlarge on hover */
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+        }
+    </style>
+    <title>Hello, world!</title>
+
+    
+  </head>
+
+  <body style="overflow: auto; overflow-x:hidden">
+    <div class="row">
+        <div class="col-md-2">
+            <h5>Local Video</h5>
+            <video id="localVideo" class="local" autoplay muted playsinline></video>
+        </div> 
+        <div class="col-md-2">
+            <h5>Remote Videos</h5>
+            <div id="remoteVideos" class="remote"></div>
+        </div>
+    </div>
+        <video id="screenShareVideo" autoplay playsinline style="display: none;" ></video>
+
+        <a-scene embedded style="width: 140vh; height: 55vh;" background="color: #aqua">
+            <a-assets>
+            <img id="classroom" src= "{% static 'svg/chairs-2181977_1280.jpg' %}">
+            <img id="frame" src="{% static 'svg/frame-2487298_1280.png'%}">
+            <img id="book" src="{% static 'svg/bookcases-1869616_1280.jpg'%}">
+            <img id="wood" src="{% static 'svg/wood-1846849_1280.jpg' %}">
+            <img id="wood2" src="{% static 'svg/wood-364694_1280.jpg' %}">
+            <img id="marble" src="{% static 'svg/stone-2929205_1280.jpg' %}">
+            <img id="roof" src="{% static 'svg/wood-72380_1280.jpg' %}">
+            <img id="wall" src="{% static 'svg/white-1872242_1280.jpg' %}">
+            <a-asset-item id="castle" src="{% static 'svg/scene.gltf'%}"></a-asset-item>
+            <a-asset-item id="chair" src="{% static 'svg/Chair.glb'%}"></a-asset-item>
+            <a-asset-item id="board" src="{% static 'svg/Message board.glb' %}"></a-asset-item>
+            <video class="local" playsinline></video>
+            </a-assets>
+            
+            
+            
+            <a-plane rotation="-90 0 0"
+                     width="100"
+                     height="100"
+                     src="#marble"
+                     position="0 -8 0"
+                     opacity="0.9">
+            </a-plane>
+
+            <a-plane position="0 4 -18"
+                     width="60"
+                     height="25"
+                     color="#7b7d7d"
+                     src="#wall">
+                     <a-image
+                              position="0 0 0.9"
+                              src="#frame"
+                              scale="17 17 17">
+                            </a-image>
+                     <a-plane position="0 0 0.5"
+                              width="17"
+                              height="17"
+                              color="#000000"
+                              opacity="1">
+                    </a-plane>
+                    <a-plane position="0 0 0.8"
+                              width="17"
+                              height="17"
+                              color="#000000"
+                              opacity="0.5"
+                             >
+                    </a-plane>
+                    <!--board-->
+                    <a-entity position="-20 -5 1" gltf-model="#board" scale="0.15 0.15 0.15" rotation="0 270 0"></a-entity>
+            </a-plane>
+
+            <!--avatar-->
+            <a-box
+                    position="0 2 24"
+                    width="2"
+                    height="2"
+                    shadow material="src: #localVideo ">
+                    <a-box
+                            position="0 -3 0"
+                            width="2"
+                            height="4">
+                    </a-box>
+                    <a-box 
+                            position="-2 -2 0"
+                            width="2.5"
+                            height="1.5"
+                            rotation="0 0 15">
+                    </a-box>
+                    <a-box 
+                            position="2 -2 0"
+                            width="2.5"
+                            height="1.5"
+                            rotation="0 0 -15">
+                    </a-box>
+                    <a-box 
+                            position="-1 -6.5 0"
+                            width="1.5"
+                            height="3.5">
+                    </a-box>
+                    <a-box 
+                            position="1 -6.5 0"
+                            width="1.5"
+                            height="3.5">
+                    </a-box>
+            </a-box>
+            <a-box
+                    position="8 2 18"
+                    width="2"
+                    height="2"
+                    id="avatar-USERNAME"
+                    material="src: #video-USERNAME"
+                    rotation="0 90 0">
+                    <a-box
+                            position="0 -3 0"
+                            width="2"
+                            height="4"
+                            rotation="0 0 0">
+                    </a-box>
+                    <a-box 
+                            position="-2 -2 0"
+                            width="2.5"
+                            height="1.5"
+                            rotation="0 0 15">
+                    </a-box>
+                    <a-box 
+                            position="2 -2 0"
+                            width="2.5"
+                            height="1.5"
+                            rotation="0 0 -15">
+                    </a-box>
+                    <a-box 
+                            position="-1 -6.5 0"
+                            width="1.5"
+                            height="3.5">
+                    </a-box>
+                    <a-box 
+                            position="1 -6.5 0"
+                            width="1.5"
+                            height="3.5">
+                    </a-box>
+            </a-box>
+            <a-box
+                    position="-8 2 18"
+                    width="2"
+                    height="2"
+                    id="avatar-second"
+                    material="src: #video-second"
+                    rotation="0 90 0">
+                    <a-box
+                            position="0 -3 0"
+                            width="2"
+                            height="4">
+                    </a-box>
+                    <a-box 
+                            position="-2 -2 0"
+                            width="2.5"
+                            height="1.5"
+                            rotation="0 0 15">
+                    </a-box>
+                    <a-box 
+                            position="2 -2 0"
+                            width="2.5"
+                            height="1.5"
+                            rotation="0 0 -15">
+                    </a-box>
+                    <a-box 
+                            position="-1 -6.5 0"
+                            width="1.5"
+                            height="3.5">
+                    </a-box>
+                    <a-box 
+                            position="1 -6.5 0"
+                            width="1.5"
+                            height="3.5">
+                    </a-box>
+            </a-box>
+
+
+            <a-image
+                    position="-30 4 -8"
+                    width="10"
+                    height="11"
+                    src="#book"
+                    scale="2 2 2"
+                    rotation="0 90 0">
+                  </a-image>
+            <a-image
+                    position="-30 4 12"
+                    width="10"
+                    height="11"
+                    src="#book"
+                    scale="2 2 2"
+                    rotation="0 90 0">
+                  </a-image>
+            <a-image
+                    position="-30 4 32"
+                    width="10"
+                    height="11"
+                    src="#book"
+                    scale="2 2 2"
+                    rotation="0 90 0">
+                  </a-image>
+            <a-image
+                    position="30 4 -8"
+                    width="10"
+                    height="11"
+                    src="#book"
+                    scale="2 2 2"
+                    rotation="0 -90 0">
+                  </a-image>
+            <a-image
+                    position="30 4 12"
+                    width="10"
+                    height="11"
+                    src="#book"
+                    scale="2 2 2"
+                    rotation="0 -90 0">
+                  </a-image>
+            <a-image
+                    position="30 4 32"
+                    width="10"
+                    height="11"
+                    src="#book"
+                    scale="2 2 2"
+                    rotation="0 -90 0">
+                  </a-image>
+            <a-image
+                    position="29.8 4 12"
+                    width="30.5"
+                    height="12"
+                    src="#frame"
+                    rotation="0 -90 0"
+                    repeat="3"
+                    scale="2 2 2">
+                  </a-image>
+            <a-image
+                    position="-29.8 4 12"
+                    width="30.5"
+                    height="12"
+                    src="#frame"
+                    rotation="0 -90 0"
+                    repeat="3"
+                    scale="2 2 2">
+                  </a-image>
+             <a-box 
+                position="0 -1.8 13" 
+                width="10" 
+                height="17"
+                depth="" 
+                opacity="1"
+                src="#wood2"
+                rotation="90 0 0"
+                >
+                <a-cylinder radius="0.5"
+                            height="4"
+                            rotation="-90 0 0"
+                            position="-4 -7 2"></a-cylinder>
+                 <a-cylinder radius="0.5"
+                            height="4"
+                            rotation="-90 0 0"
+                            position="4 -7 2"></a-cylinder>
+                <a-cylinder radius="0.5"
+                            height="4"
+                            rotation="-90 0 0"
+                            position="4 7 2"></a-cylinder>
+                <a-cylinder radius="0.5"
+                            height="4"
+                            rotation="-90 0 0"
+                            position="-4 7 2"></a-cylinder>            
+                </a-box>
+
+                <a-plane  width="60"
+                          height="60"
+                          depth="15"
+                          position="0 15.8 12"
+                          color="silver"
+                          rotation="90 0 0"
+                          >
+                </a-plane>
+
+                <!--road-->
+                <a-plane  position="0 -8  100"
+                          rotation="-90 0 0"
+                          color="wood"
+                          height="100"
+                          width="10">
+                </a-plane>
+
+                <!--island-->
+                <a-entity position="0 0 1000" gltf-model="#castle"></a-entity>  
+
+                
+                
+                <!--chair-->
+                <a-entity position="0 -7 28" gltf-model="#chair" scale="0.7 0.7 0.7" rotation="0 90 0"></a-entity>
+                <a-entity position="12 -7 18" gltf-model="#chair" scale="0.7 0.7 0.7" rotation="0 180 0"></a-entity>
+                <a-entity position="-12 -7 18" gltf-model="#chair" scale="0.7 0.7 0.7" rotation="0  0 0"></a-entity>
+
+
+                <!--camera-->
+                 <a-entity id="cam2" position="0 100 0">
+                    <a-camera id="camera2"  active="false"></a-camera>
+                </a-entity>
+                <a-entity id="cam1" position="0 1.6 0">
+                    <a-camera id="camera1" active="true"></a-camera>
+                </a-entity>
+        </a-scene>
+        
+    </div>
+
+    <div id="chat-container">
+        <form id="chat-form">
+            <div class="form-group">
+                <label for="exampleFormControlTextarea1" class="h4 pt-5">Chatroom</label>
+                <textarea class="form-control" id="chat-text" rows="16" readonly></textarea><br>
+            </div>
+            <div class="form-group">
+                <input class="form-control" id="input" type="text"><br>
+            </div>
+            <input class="btn btn-secondary btn-lg btn-block" id="submit" type="button" value="Send">
+        </form>
+    </div>
+
+    <div class="button-container">
+    <button id="video-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
+            <path d="M0 0h24v24H0V0z" fill="none"/>
+            <path d="M17 10.5V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4.5l4 4V6.5l-4 4z"/>
+        </svg>
+    </button>
+    <button id="audio-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
+            <path d="M0 0h24v24H0V0z" fill="none"/>
+            <path d="M12 3v10.55A4 4 0 1014 17V4h4V3h-6z"/>
+        </svg>
+    </button>
+    <button id="ScreenSharing">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m853-221-53-53v-486H314l-80-80h566q33 0 56.5 23.5T880-760v480q0 18-6.5 32.5T853-221ZM127-833l73 73h-40v480h406L28-820l56-56L876-84l-56 56-172-172h-8v80H320v-80H160q-33 0-56.5-23.5T80-280v-480q0-37 23.5-55l23.5-18Zm237 351Zm195-33Z"/></svg>
+    </button>
+    <button id="etherpad" onclick="openNewTab()">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h320l240 240v240h-80v-200H520v-200H240v640h360v80H240Zm638 15L760-183v89h-80v-226h226v80h-90l118 118-56 57Zm-638-95v-640 640Z"/></svg>
+    </button>
+    <button id="endcall" onclick="reverse()">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m136-304-92-90q-12-12-12-28t12-28q88-95 203-142.5T480-640q118 0 232.5 47.5T916-450q12 12 12 28t-12 28l-92 90q-11 11-25.5 12t-26.5-8l-116-88q-8-6-12-14t-4-18v-114q-38-12-78-19t-82-7q-42 0-82 7t-78 19v114q0 10-4 18t-12 14l-116 88q-12 9-26.5 8T136-304Zm104-198q-29 15-56 34.5T128-424l40 40 72-56v-62Zm480 2v60l72 56 40-38q-29-26-56-45t-56-33Zm-480-2Zm480 2Z"/></svg>
+    </button>
+    
+    <button onclick="switchCamera()"><span>Switch Camera</span></button>
+</div>
+
+    {{ room_name|json_script:"room-name" }}
+    {{ request.user.username|json_script:"user_username" }}
+
+    <script>
+    
+    function openNewTab(){
+        window.open("{% url 'chat:etherpad' room_name=room_name %}" ,"_blank");
+    }
+
+    function reverse(){
+        window.history.back();
+    }
+
+     function switchCamera() {
+        var cam1 = document.querySelector('#camera1');
+        var cam2 = document.querySelector('#camera2');
+        if (cam1.getAttribute('camera').active) {
+          cam1.setAttribute('camera', 'active', false);
+          cam2.setAttribute('camera', 'active', true);
+        } else {
+          cam1.setAttribute('camera', 'active', true);
+          cam2.setAttribute('camera', 'active', false);
+        }
+      }
+        
+    const videoOnIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
+        <path d="M0 0h24v24H0V0z" fill="none"/>
+        <path d="M17 10.5V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4.5l4 4V6.5l-4 4z"/>
+        </svg>
+        `;
+
+        const videoOffIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
+        <path d="M0 0h24v24H0V0z" fill="none"/>
+        <path d="M21.41 20.29L4.27 3.16 3 4.44l4 4V18c0 1.1.9 2 2 2h8c.39 0 .75-.11 1.06-.29l2.49 2.49 1.27-1.27zM15 18H9V10.44l6 6V18zM17 10.5V6l4 4v.5l-4 4z"/>
+        </svg>
+        `;
+
+        const audioOnIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
+        <path d="M0 0h24v24H0V0z" fill="none"/>
+        <path d="M12 3v10.55A4 4 0 1014 17V4h4V3h-6z"/>
+        </svg>
+        `;
+
+        const audioOffIcon = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#fff">
+        <path d="M0 0h24v24H0V0z" fill="none"/>
+        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.1l2.43 2.43c.04-.17.07-.35.07-.5zm3.5 0c0 .97-.19 1.89-.52 2.74l1.58 1.58c.6-1.19.94-2.55.94-4.02 0-4.42-3.58-8-8-8-1.47 0-2.83.34-4.02.94l1.58 1.58A6.996 6.996 0 0116.5 12zM4.27 3L3 4.27l4.99 5V13c0 2.21 1.79 4 4 4 .51 0 .98-.1 1.42-.27l4.3 4.3 1.27-1.27L4.27 3z"/>
+        </svg>`;
+
+        const ScreenSharingIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M320-400h80v-80q0-17 11.5-28.5T440-520h80v80l120-120-120-120v80h-80q-50 0-85 35t-35 85v80ZM160-240q-33 0-56.5-23.5T80-320v-440q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v440q0 33-23.5 56.5T800-240H160Zm0-80h640v-440H160v440Zm0 0v-440 440ZM40-120v-80h880v80H40Z"/></svg>`
+
+        const ScreenSharingOffIcon = `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m853-221-53-53v-486H314l-80-80h566q33 0 56.5 23.5T880-760v480q0 18-6.5 32.5T853-221ZM127-833l73 73h-40v480h406L28-820l56-56L876-84l-56 56-172-172h-8v80H320v-80H160q-33 0-56.5-23.5T80-280v-480q0-37 23.5-55l23.5-18Zm237 351Zm195-33Z"/></svg>`
+
+
+    const user_username = JSON.parse(document.getElementById('user_username').textContent);
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+        let screenStream;
+        let videoEnabled = true;
+        let audioEnabled = true;
+        let screenTrackSenders = {}; 
+        let currentScreenSharer = null;
+
+        const scene = document.querySelector('a-scene');
+        document.addEventListener('fullscreenchange', function () {
+        if (document.fullscreenElement === scene) {
+            location.reload();
+        }
+        });
+
+        function randomId(len = 8) {
+            const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            let out = '';
+            for (let i = 0; i < len; ++i) out += chars[Math.floor(Math.random() * chars.length)];
+            return out;
+        }
+        // Will map signaling username to random ID for remote users
+        const remoteUserIds = {};
+        function getOrAssignRandomId(username) {
+            if (username === user_username ) return "second"; // Use signaling username for second user
+            if (!remoteUserIds[username]) {
+                remoteUserIds[username] = "peer_" + randomId();
+            }
+            return remoteUserIds[username];
+        }
+
+       function replaceVideoTrack(newTrack) {
+    Object.values(peerConnections).forEach(pc => {
+        const sender = pc.getSenders().find(s => s.track && s.track.kind === 'video');
+        if (sender) sender.replaceTrack(newTrack);
+    });
+}
+
+    // Screen Sharing Handler
+    document.getElementById('ScreenSharing').addEventListener('click', async () => {
+            try {
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                const screenTrack = screenStream.getVideoTracks()[0];
+
+                // Only update the localVideo element, NOT screenShareVideo
+                const localVideoEl = document.getElementById("localVideo");
+                localVideoEl._previousSrcObject = localVideoEl.srcObject;
+                localVideoEl.srcObject = screenStream;
+                localVideoEl.play();
+
+                // Hide the extra screenShareVideo
+                const videoEl = document.getElementById("screenShareVideo");
+                videoEl.srcObject = null;
+                videoEl.style.display = "none";
+
+                // Add the screen track to all peer connections and renegotiate
+                for (const [username, pc] of Object.entries(peerConnections)) {
+                    const sender = pc.addTrack(screenTrack, screenStream);
+                    screenTrackSenders[username] = sender;
+
+                    const offer = await pc.createOffer();
+                    await pc.setLocalDescription(offer);
+                    chatSocket.send(JSON.stringify({
+                        type: "sdp",
+                        sdp: pc.localDescription,
+                        sender: user_username,
+                        target: username
+                    }));
+                }
+
+                chatSocket.send(JSON.stringify({
+                    type: "screen_share_stream",
+                    sender: user_username
+                }));
+
+                screenTrack.onended = async () => {
+                    for (const [username, pc] of Object.entries(peerConnections)) {
+                        if (screenTrackSenders[username]) {
+                            pc.removeTrack(screenTrackSenders[username]);
+                            delete screenTrackSenders[username];
+
+                            const offer = await pc.createOffer();
+                            await pc.setLocalDescription(offer);
+                            chatSocket.send(JSON.stringify({
+                                type: "sdp",
+                                sdp: pc.localDescription,
+                                sender: user_username,
+                                target: username
+                            }));
+                        }
+                    }
+                    chatSocket.send(JSON.stringify({
+                        type: "screen_share_stopped",
+                        sender: user_username
+                    }));
+
+                    // Restore local video to webcam when screen sharing stops
+                    if (localVideoEl._previousSrcObject) {
+                        localVideoEl.srcObject = localVideoEl._previousSrcObject;
+                        localVideoEl.play();
+                    }
+                    // Still keep screenShareVideo hidden
+                    videoEl.srcObject = null;
+                    videoEl.style.display = "none";
+                };
+            } catch (err) {
+                console.error("Error sharing screen:", err);
+            }
+        });
+                        
+
+
+        document.getElementById('video-btn').addEventListener('click', () => {
+            if (localStream) {
+                localStream.getVideoTracks().forEach(track => {
+                    track.enabled = !track.enabled;
+                });
+                videoEnabled = !videoEnabled;
+
+                // Toggle icon
+                document.getElementById('video-btn').innerHTML = videoEnabled ? videoOnIcon : videoOffIcon;
+            }
+        });
+
+        document.getElementById('audio-btn').addEventListener('click', () => {
+            if (localStream) {
+                localStream.getAudioTracks().forEach(track => {
+                    track.enabled = !track.enabled;
+                });
+                audioEnabled = !audioEnabled;
+
+                // Toggle icon
+                document.getElementById('audio-btn').innerHTML = audioEnabled ? audioOnIcon : audioOffIcon;
+            }
+        });
+
+
+
+        // WebSocket connection
+        const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+        chatSocket = new WebSocket(
+            wsScheme + '://' + window.location.host + '/ws/chat/' + roomName + '/'
+        );
+
+
+        // WebSocket event handlers
+        chatSocket.onopen = () => console.log("WebSocket open.");
+        chatSocket.onerror = (err) => console.error("WebSocket error:", err);
+        chatSocket.onclose = () => console.warn("WebSocket connection closed.");
+        chatSocket.onmessage = async function (e) {
+            const data = JSON.parse(e.data);
+            const sender = data.sender;
+            const uniqueId = getOrAssignRandomId(data.sender)
+
+            if (sender === user_username) return; // Skip messages from self
+
+            if (data.type === "sdp") {
+                let pc = peerConnections[sender];
+                if (!pc) pc = await createPeerConnection(sender);
+
+                await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+                if (data.sdp.type === "offer") {
+                    const answer = await pc.createAnswer();
+                    await pc.setLocalDescription(answer);
+                    chatSocket.send(JSON.stringify({
+                        type: "sdp",
+                        sdp: pc.localDescription,
+                        sender: user_username,
+                        target: sender
+                    }));
+                }
+            }
+
+            if (data.type === "ice" && data.candidate) {
+                const pc = peerConnections[sender];
+                if (pc) {
+                    await pc.addIceCandidate(data.candidate);
+                }
+            }
+
+            if (data.type === "new-user") {
+                if (data.username !== user_username) {
+                    document.querySelector('#chat-text').value += `${data.username} has joined the meeting.\n`;
+                    await createOfferForUser(data.username);
+                }
+            }
+
+            if (data.type === "screen_share_stream") {
+                // Someone started sharing
+                currentScreenSharer = data.sender;
+                document.getElementById("screenShareVideo").style.display = "block";
+                if (currentScreenSharer !== user_username) {
+                    document.getElementById("ScreenSharing").disabled = true;
+                }
+            }
+            if (data.type === "screen_share_stopped") {
+                // Remove video texture from A-Frame
+                const aframeSurface = document.getElementById("screenshare-surface");
+                if (aframeSurface) {
+                    aframeSurface.setAttribute('material', 'src', ''); // Or fallback image/video
+                }
+                const screenShareVideo = document.getElementById("screenShareVideo");
+                screenShareVideo.srcObject = null;
+                screenShareVideo.style.display = "none";
+            }
+
+            if (data.message && data.username) {
+                document.querySelector('#chat-text').value += `${data.username}: ${data.message}\n`;
+            }
+        };
+
+        // WebRTC setup
+        let localStream;
+        const peerConnections = {};
+        const config = {
+            iceServers: [
+                { urls: "stun:stun.l.google.com:19302" },
+                { urls: "turn:your-turn-server.com", username: "user", credential: "password" } // Optional TURN server
+            ]
+        };
+
+        async function createPeerConnection(username) {
+            const uniqueId = getOrAssignRandomId(username)
+            const pc = new RTCPeerConnection(config);
+            peerConnections[username] = pc;
+
+            localStream.getTracks().forEach(track => {
+                if (track.kind === "audio" || track.kind === "video") {
+                    pc.addTrack(track, localStream);
+                }
+            });
+
+        
+            const remoteStreams = {}; // username => MediaStream
+
+            pc.ontrack = (event) => {
+                // --- SCREEN SHARE HANDLING ---
+                if (
+                    event.track.kind === "video" && (
+                        event.track.label.toLowerCase().includes("screen") ||
+                        event.track.label.toLowerCase().includes("display")
+                    )
+                ) {
+                    // Handle screen share track
+                    const screenShareVideo = document.getElementById("screenShareVideo");
+                    // Collect all screen tracks in one stream (optional: if multiple tracks possible)
+                    screenShareVideo.srcObject = new MediaStream([event.track]);
+                    screenShareVideo.style.display = "block";
+                    screenShareVideo.play();
+
+                    // Set as texture in A-Frame
+                    screenShareVideo.onloadedmetadata = () => {
+                        const aframeSurface = document.getElementById("screenshare-surface");
+                        if (aframeSurface) {
+                            aframeSurface.setAttribute('material', 'src', '#screenShareVideo');
+                        }
+                    };
+                    return; // Done with screen share
+                }
+
+                // --- REGULAR AUDIO/VIDEO HANDLING ---
+                // Collect tracks by username
+                const uniqueId = getOrAssignRandomId(username);
+                let stream = remoteStreams[username];
+                if (!stream) {
+                    stream = new MediaStream();
+                    remoteStreams[username] = stream;
+                }
+                stream.addTrack(event.track);
+
+                // 1. HIDDEN "A-Frame texture" video
+                let remoteVideoHidden = document.getElementById(`video-${uniqueId}`);
+                if (!remoteVideoHidden) {
+                    remoteVideoHidden = document.createElement("video");
+                    remoteVideoHidden.id = `video-${uniqueId}`;
+                    remoteVideoHidden.autoplay = true;
+                    remoteVideoHidden.playsInline = true;
+                    remoteVideoHidden.muted = false; // Don't mute here!
+                    remoteVideoHidden.style.position = "absolute";
+                    remoteVideoHidden.style.left = "-9999px";
+                    remoteVideoHidden.style.width = "2px";
+                    remoteVideoHidden.style.height = "2px";
+                    document.body.appendChild(remoteVideoHidden);
+                }
+
+                // 2. VISIBLE remote video in the UI
+                let remoteVideoVisible = document.getElementById(`remoteVideo-${uniqueId}`);
+                if (!remoteVideoVisible) {
+                    remoteVideoVisible = document.createElement("video");
+                    remoteVideoVisible.id = `remoteVideo-${uniqueId}`;
+                    remoteVideoVisible.autoplay = true;
+                    remoteVideoVisible.playsInline = true;
+                    remoteVideoVisible.muted = false;
+                    remoteVideoVisible.style.marginBottom = "10px";
+                    document.getElementById("remoteVideos").appendChild(remoteVideoVisible);
+                }
+
+                // Attach the full media stream (audio+video)
+                remoteVideoHidden.srcObject = stream;
+                remoteVideoVisible.srcObject = stream;
+
+                // Change this to match your second user's uniqueId
+                const secondUserUniqueId = "second";
+
+                remoteVideoHidden.onloadeddata = () => {
+                    if (uniqueId === secondUserUniqueId) {
+                        // Use the fixed-position box
+                        let avatar = document.getElementById("avatar-second");
+                        if (avatar) {
+                            avatar.setAttribute("material", `src: #video-${uniqueId}`);
+                            avatar.setAttribute("position", "-8 2 12");
+                        }
+                    } else {
+                        // Dynamic avatars for others
+                        let avatar = document.getElementById(`avatar-${uniqueId}`);
+                        if (!avatar) {
+                            avatar = document.createElement("a-box");
+                            avatar.setAttribute("id", `avatar-${uniqueId}`);
+                            avatar.setAttribute("material", `src: #video-${uniqueId}`);
+                            avatar.setAttribute("position", "8 2 18");
+                            avatar.setAttribute("width", "2");
+                            avatar.setAttribute("height", "2");
+                            avatar.setAttribute("rotation", "0 90 0");
+                            document.querySelector("a-scene").appendChild(avatar);
+                        } else {
+                            avatar.setAttribute("material", `src: #video-${uniqueId}`);
+                        }
+                    }
+                    remoteVideoHidden.play();
+                };
+                remoteVideoVisible.onloadeddata = () => remoteVideoVisible.play();
+            };
+
+             pc.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        chatSocket.send(JSON.stringify({
+                            type: "ice",
+                            candidate: event.candidate,
+                            sender: user_username,
+                            target: username // now correct!
+                        }));
+                    }
+                };
+
+                return pc;
+            }
+
+
+        async function createOfferForUser(username) {
+            const pc = await createPeerConnection(username);
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            chatSocket.send(JSON.stringify({
+                type: "sdp",
+                sdp: pc.localDescription,
+                sender: user_username,
+                target: username
+            }));
+        }
+
+        
+        async function initLocalStream() {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById("localVideo").srcObject = localStream;
+        }
+
+        // Trigger call on load
+        window.onload = async () => {
+            await initLocalStream();
+
+            // Wait until the WebSocket is open before sending anything
+            const waitForSocketConnection = (socket, callback) => {
+                const maxRetries = 10;
+                let retryCount = 0;
+
+                const wait = () => {
+                    if (socket.readyState === WebSocket.OPEN) {
+                        console.log("WebSocket is ready.");
+                        if (callback != null) callback();
+                    } else {
+                        retryCount++;
+                        if (retryCount > maxRetries) {
+                            console.error("WebSocket connection timeout.");
+                            return;
+                        }
+                        console.log("Waiting for WebSocket connection...");
+                        setTimeout(wait, 200); // retry every 200ms
+                    }
+                };
+                wait();
+            };
+
+            waitForSocketConnection(chatSocket, () => {
+                chatSocket.send(JSON.stringify({
+                    type: "new-user",
+                    username: user_username
+                }));
+            });
+        };
+
+
+        // Send chat messages
+        document.querySelector('#submit').onclick = function () {
+            const messageInputDom = document.querySelector('#input');
+            const message = messageInputDom.value;
+            if (message.trim() === "") return;
+
+            chatSocket.send(JSON.stringify({
+                message: message.trim(),
+                username: user_username,
+            }));
+            messageInputDom.value = '';
+        };
+    </script>
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+  </body>
+</html>
+

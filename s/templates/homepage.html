@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MMU-VR GROUP{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script type="text/javascript" src="{% static 'js/app.js' %}" defer></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('https://images.pexels.com/photos/346529/pexels-photo-346529.jpeg');
+      background-size: cover;
+      background-position: center;
+      color: white;
+    }
+    .navbar-custom {
+      background-color: rgba(52, 58, 64, 0.95);
+    }
+    .navbar-custom .nav-link {
+      color: white;
+      margin-right: 15px;
+    }
+    .navbar-custom .nav-link:hover {
+      color: #ffc107;
+    }
+    .main-content {
+      padding: 80px 20px 20px;
+    }
+    .card {
+      background-color: white;
+    }
+    .btn-custom {
+      background-color: #007bff;
+      color: white;
+    }
+    .btn-custom:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+    <div class="container">
+      <a class="navbar-brand text-white font-weight-bold" href="#">
+        MMU VR-Group
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" href="">To-do-list</a></li>
+          <li class="nav-item"><a class="nav-link" href="">Test</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'login_signup' %}">Login</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div id="overview" class="container mt-5">
+      <h3><b>Overview</b></h3>
+      <p><b>Welcome to the MMU VR Group Dashboard! Here you can manage and view important details about the group's activities, projects, and events.</b></p>
+    </div>
+
+    <div id="projects" class="container mt-5">
+      <h3><b>Project Features</b></h3>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card text-dark mb-3">
+            <div class="card-body">
+              <h5 class="card-title"><b>Study Group</b></h5>
+              <p class="card-text"><b>Join a group study group easily</b></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-dark mb-3">
+            <div class="card-body">
+              <h5 class="card-title"><b>Collaborative Note-Taking</b></h5>
+              <p class="card-text"><b>Share yout work together</b></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-dark mb-3">
+            <div class="card-body">
+              <h5 class="card-title"><b>Task and To-Do List</b></h5>
+              <p class="card-text"><b>Assign Taks and Create a To-Do-List</b></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-dark mb-3">
+            <div class="card-body">
+              <h5 class="card-title"><b>Conference</b></h5>
+              <p class="card-text"><b>Vidoe Meeting</b></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-dark mb-3">
+            <div class="card-body">
+              <h5 class="card-title"><b>Real Time Chat</b></h5>
+              <p class="card-text"><b>Chat easily</b></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    
+    
+
+  <!-- Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+ <!-- ✅ Ranking Section starts here -->
+<div class="main-content">
+  <div class="container">  
+    <h3>🏆 Group Member Rankings</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Place</th>
+          <th>Username</th>
+          <th>Completed Tasks</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in ranking %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ entry.assigned_to__username }}</td>
+          <td>{{ entry.completed_count }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2">No completed tasks yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>    
+{% endblock %}
+
