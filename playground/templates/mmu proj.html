@@ -191,7 +191,7 @@
     <form method="POST" id="signupForm">
       {% csrf_token %}
       <input type="hidden" name="form_type" value="signup">
-      <input type="text" name='username' placeholder="Full Name" required>
+      <input type="text" name='username' placeholder="Username" required>
       <input type="email" name='email' placeholder="Email" required>
       <input type="password" name='password1' placeholder="Password" required>
       <input type="password" name='password2' placeholder="Confirm Password" required>

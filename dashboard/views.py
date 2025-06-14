@@ -9,6 +9,17 @@ from datetime import timedelta, datetime
 from collections import defaultdict
 from zfeng.models import todo
 
+def get_minutes_today(user):
+    now = timezone.localtime(timezone.now())
+    today = now.date()
+    sessions = UserSession.objects.filter(user=user)
+    usage_per_day = defaultdict(float)
+    for session in sessions:
+        split_usage = split_session_across_days(session, now)
+        for day, minutes in split_usage.items():
+            usage_per_day[day] += round(minutes, 2)
+    return round(usage_per_day.get(today, 0), 2)
+
 def split_session_across_days(session, now):
     """Returns a dict: {date: minutes_used_on_that_date} for the given session."""
     usage = defaultdict(float)
@@ -28,13 +39,10 @@ def split_session_across_days(session, now):
 
 @login_required
 def index(request):
-    now = timezone.now()
+    now = timezone.localtime(timezone.now())  # always current local time
     today = now.date()
-
-    # Get all sessions for the logged-in user
     sessions = UserSession.objects.filter(user=request.user)
 
-    # Calculate usage per day (including sessions spanning multiple days)
     usage_per_day = defaultdict(float)
     for session in sessions:
         split_usage = split_session_across_days(session, now)
@@ -53,19 +61,19 @@ def index(request):
 
     # Chart data: total usage time per day (minutes) for all users over the last 7 days
     last_7_days = [today - timedelta(days=i) for i in range(6, -1, -1)]
-    usage_per_day_all = defaultdict(float)
-    all_sessions = UserSession.objects.all()
-    for session in all_sessions:
+    usage_per_day_user = defaultdict(float)
+    user_sessions = UserSession.objects.filter(user=request.user)
+    for session in user_sessions:
         split_usage = split_session_across_days(session, now)
         for day, minutes in split_usage.items():
-            usage_per_day_all[day] += round(minutes, 2)
+            usage_per_day_user[day] += round(minutes, 2)
 
     chart_labels = []
     chart_data = []
     for day in last_7_days:
         chart_labels.append(day.strftime('%b %d'))
-        chart_data.append(round(usage_per_day_all.get(day, 0), 2))
-
+        chart_data.append(round(usage_per_day_user.get(day, 0), 2))
+        
     # Last login time of the user
     last_login = request.user.last_login
     user_last_login = timezone.localtime(last_login).strftime('%Y-%m-%d %H:%M:%S') if last_login else "Never logged in"
