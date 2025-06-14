@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'channels',
     'zfeng',
     'debug_toolbar',
-    'todoapp',
     'ckeditor',
     'workspace_chat',
     'dashboard.apps.DashboardConfig',

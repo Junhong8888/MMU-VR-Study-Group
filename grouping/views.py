@@ -83,17 +83,6 @@ def join_group(request):
 
     return render(request, 'join_by_code.html', {'error': error})
 
-'''
-@login_required
-def workspace(request, room_id):
-    group = get_object_or_404(Room, id=room_id)
-
-    # Check if user is host or member
-    if request.user == group.host or request.user in group.members.all():
-        return render(request, 'todo.html', {'group': group})
-    else:
-        return redirect('home')  # or show a permission denied message
-'''
 
 @login_required
 def workspace(request, Room_join_code):
@@ -208,19 +197,3 @@ def ranking(request, Room_join_code):
         "ranking": ranking
     })
 
-'''
-def document_list(request):
-    docs = Document.objects.all()
-    return render(request, 'todoapp/document_list.html', {'documents': docs})
-
-def document_create(request):
-    if request.method == 'POST':
-        form = DocumentForm(request.POST)
-        if form.is_valid():
-            doc = form.save(commit=False)
-            doc.save()
-            return redirect('home-page')
-    else:
-        form = DocumentForm()
-    return render(request, 'todoapp/document_form.html', {'form': form})
-'''

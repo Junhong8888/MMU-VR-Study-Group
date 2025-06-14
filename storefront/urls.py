@@ -28,8 +28,6 @@ urlpatterns = [
     path('users/',include('users.urls')),
     path('chat/',include('chat.urls')),
     path('grouping/',include('grouping.urls')),
-    #path('test/',include('test.urls')),
     path('zfeng/',include('zfeng.urls')),
     path('dashboard/',include('dashboard.urls')),
-    path('todoapp',include('todoapp.urls'))
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

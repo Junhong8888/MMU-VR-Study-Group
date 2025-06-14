@@ -41,7 +41,6 @@ def Update(request, id):
 def TaskDetail(request, id):
     task = get_object_or_404(todo, id=id,)
     
- 
 
     # Ensure document exists
     if task.document is None:
@@ -63,7 +62,7 @@ def TaskDetail(request, id):
         todo_form = TodoForm(instance=task,  prefix="task")
         doc_form = DocumentForm(instance=document, prefix="doc")
 
-    return render(request, 'task_detail_s.html', {
+    return render(request, 'task_detail.html', {
         'todo_form': todo_form,
         'doc_form': doc_form,
         'task': task,

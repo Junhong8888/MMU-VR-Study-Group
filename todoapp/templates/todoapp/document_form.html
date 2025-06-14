@@ -1,7 +1,0 @@
-<h1>Edit Document</h1>
-<form method="post">
-  {% csrf_token %}
-  {{ form.media }}  <!-- CKEditor scripts -->
-  {{ form.as_p }}
-  <button type="submit">Save</button>
-</form>

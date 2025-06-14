@@ -728,15 +728,28 @@
             const pc = new RTCPeerConnection(config);
             peerConnections[username] = pc;
 
-            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+            localStream.getTracks().forEach(track => {
+                if (track.kind === "audio" || track.kind === "video") {
+                    pc.addTrack(track, localStream);
+                }
+            });
+
+        
+
+
+            const remoteStreams = {}; // username => MediaStream
 
             pc.ontrack = (event) => {
-                if (event.track.kind === "video" && (
-                    event.track.label.toLowerCase().includes("screen") ||
-                    event.track.label.toLowerCase().includes("display")
-                )) {
+                // --- SCREEN SHARE HANDLING ---
+                if (
+                    event.track.kind === "video" && (
+                        event.track.label.toLowerCase().includes("screen") ||
+                        event.track.label.toLowerCase().includes("display")
+                    )
+                ) {
                     // Handle screen share track
                     const screenShareVideo = document.getElementById("screenShareVideo");
+                    // Collect all screen tracks in one stream (optional: if multiple tracks possible)
                     screenShareVideo.srcObject = new MediaStream([event.track]);
                     screenShareVideo.style.display = "block";
                     screenShareVideo.play();
@@ -748,72 +761,81 @@
                             aframeSurface.setAttribute('material', 'src', '#screenShareVideo');
                         }
                     };
-                } else if (event.track.kind === "video") {
-                    const uniqueId = getOrAssignRandomId(username);
-
-                    // 1. HIDDEN "A-Frame texture" video
-                    let remoteVideoHidden = document.getElementById(`video-${uniqueId}`);
-                    if (!remoteVideoHidden) {
-                        remoteVideoHidden = document.createElement("video");
-                        remoteVideoHidden.id = `video-${uniqueId}`;
-                        remoteVideoHidden.autoplay = true;
-                        remoteVideoHidden.playsInline = true;
-                        remoteVideoHidden.style.position = "absolute";
-                        remoteVideoHidden.style.left = "-9999px";
-                        remoteVideoHidden.style.width = "2px";
-                        remoteVideoHidden.style.height = "2px";
-                        document.body.appendChild(remoteVideoHidden);
-                    }
-
-                    // 2. VISIBLE remote video in the UI
-                    let remoteVideoVisible = document.getElementById(`remoteVideo-${uniqueId}`);
-                    if (!remoteVideoVisible) {
-                        remoteVideoVisible = document.createElement("video");
-                        remoteVideoVisible.id = `remoteVideo-${uniqueId}`;
-                        remoteVideoVisible.autoplay = true;
-                        remoteVideoVisible.playsInline = true;
-                        
-                        remoteVideoVisible.style.marginBottom = "10px";
-                        document.getElementById("remoteVideos").appendChild(remoteVideoVisible);
-                    }
-
-                    const remoteStream = new MediaStream([event.track]);
-                    remoteVideoHidden.srcObject = remoteStream;
-                    remoteVideoVisible.srcObject = remoteStream;
-
-                    // Change this to match your second user's uniqueId
-                    const secondUserUniqueId = "second"; // <-- set this to your actual 2nd user id
-
-                    remoteVideoHidden.onloadeddata = () => {
-                        if (uniqueId === secondUserUniqueId) {
-                            // Use the fixed-position box
-                            let avatar = document.getElementById("avatar-second");
-                            if (avatar) {
-                                avatar.setAttribute("material", `src: #video-${uniqueId}`);
-                                // Optionally, set position explicitly if needed
-                                avatar.setAttribute("position", "-8 2 12");
-                            }
-                        } else {
-                            // Dynamic avatars for others
-                            let avatar = document.getElementById(`avatar-${uniqueId}`);
-                            if (!avatar) {
-                                avatar = document.createElement("a-box");
-                                avatar.setAttribute("id", `avatar-${uniqueId}`);
-                                avatar.setAttribute("material", `src: #video-${uniqueId}`);
-                                avatar.setAttribute("position", "8 2 18");
-                                avatar.setAttribute("width", "2");
-                                avatar.setAttribute("height", "2");
-                                avatar.setAttribute("rotation", "0 90 0");
-                                document.querySelector("a-scene").appendChild(avatar);
-                            } else {
-                                avatar.setAttribute("material", `src: #video-${uniqueId}`);
-                            }
-                        }
-                        remoteVideoHidden.play();
-                    };
-                    remoteVideoVisible.onloadeddata = () => remoteVideoVisible.play();
+                    return; // Done with screen share
                 }
-            }
+
+                // --- REGULAR AUDIO/VIDEO HANDLING ---
+                // Collect tracks by username
+                const uniqueId = getOrAssignRandomId(username);
+                let stream = remoteStreams[username];
+                if (!stream) {
+                    stream = new MediaStream();
+                    remoteStreams[username] = stream;
+                }
+                stream.addTrack(event.track);
+
+                // 1. HIDDEN "A-Frame texture" video
+                let remoteVideoHidden = document.getElementById(`video-${uniqueId}`);
+                if (!remoteVideoHidden) {
+                    remoteVideoHidden = document.createElement("video");
+                    remoteVideoHidden.id = `video-${uniqueId}`;
+                    remoteVideoHidden.autoplay = true;
+                    remoteVideoHidden.playsInline = true;
+                    remoteVideoHidden.muted = false; // Don't mute here!
+                    remoteVideoHidden.style.position = "absolute";
+                    remoteVideoHidden.style.left = "-9999px";
+                    remoteVideoHidden.style.width = "2px";
+                    remoteVideoHidden.style.height = "2px";
+                    document.body.appendChild(remoteVideoHidden);
+                }
+
+                // 2. VISIBLE remote video in the UI
+                let remoteVideoVisible = document.getElementById(`remoteVideo-${uniqueId}`);
+                if (!remoteVideoVisible) {
+                    remoteVideoVisible = document.createElement("video");
+                    remoteVideoVisible.id = `remoteVideo-${uniqueId}`;
+                    remoteVideoVisible.autoplay = true;
+                    remoteVideoVisible.playsInline = true;
+                    remoteVideoVisible.muted = false;
+                    remoteVideoVisible.style.marginBottom = "10px";
+                    document.getElementById("remoteVideos").appendChild(remoteVideoVisible);
+                }
+
+                // Attach the full media stream (audio+video)
+                remoteVideoHidden.srcObject = stream;
+                remoteVideoVisible.srcObject = stream;
+
+                // Change this to match your second user's uniqueId
+                const secondUserUniqueId = "second";
+
+                remoteVideoHidden.onloadeddata = () => {
+                    if (uniqueId === secondUserUniqueId) {
+                        // Use the fixed-position box
+                        let avatar = document.getElementById("avatar-second");
+                        if (avatar) {
+                            avatar.setAttribute("material", `src: #video-${uniqueId}`);
+                            avatar.setAttribute("position", "-8 2 12");
+                        }
+                    } else {
+                        // Dynamic avatars for others
+                        let avatar = document.getElementById(`avatar-${uniqueId}`);
+                        if (!avatar) {
+                            avatar = document.createElement("a-box");
+                            avatar.setAttribute("id", `avatar-${uniqueId}`);
+                            avatar.setAttribute("material", `src: #video-${uniqueId}`);
+                            avatar.setAttribute("position", "8 2 18");
+                            avatar.setAttribute("width", "2");
+                            avatar.setAttribute("height", "2");
+                            avatar.setAttribute("rotation", "0 90 0");
+                            document.querySelector("a-scene").appendChild(avatar);
+                        } else {
+                            avatar.setAttribute("material", `src: #video-${uniqueId}`);
+                        }
+                    }
+                    remoteVideoHidden.play();
+                };
+                remoteVideoVisible.onloadeddata = () => remoteVideoVisible.play();
+            };
 
              pc.onicecandidate = (event) => {
                     if (event.candidate) {
@@ -842,7 +864,7 @@
             }));
         }
 
-        /*
+        
         async function initVideoSession() {
             try {
                 // Get local stream
@@ -908,7 +930,7 @@
                 console.error("Error making call:", err);
             }
         }
-        */
+        
         async function initLocalStream() {
             localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             document.getElementById("localVideo").srcObject = localStream;
