@@ -177,3 +177,6 @@ CSRF_TRUSTED_ORIGINS = [
     
     'https://mmu-vr-study-group.onrender.com'
 ]
+
+SESSION_COOKIE_AGE = 900  # 15 minutes
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

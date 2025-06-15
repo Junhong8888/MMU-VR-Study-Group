@@ -1,7 +1,5 @@
-
-
 from django.db import models
-from django.contrib.auth.models import User ,AbstractUser
+from django.contrib.auth.models import User
 from django.utils import timezone
 
 class UserSession(models.Model):
@@ -9,11 +7,11 @@ class UserSession(models.Model):
     session_key = models.CharField(max_length=40, null=True, blank=True)
     login_time = models.DateTimeField()
     logout_time = models.DateTimeField(null=True, blank=True)
-    duration_minutes = models.PositiveIntegerField(null=True, blank=True)
 
-    def get_duration_minutes(self):
-        if self.login_time and self.logout_time:
-            duration = self.logout_time - self.login_time
+    def get_duration_minutes(self, now=None):
+        if self.login_time:
+            end_time = self.logout_time or (now or timezone.now())
+            duration = end_time - self.login_time
             return int(duration.total_seconds() // 60)
         return 0
     get_duration_minutes.short_description = 'Duration (minutes)'
