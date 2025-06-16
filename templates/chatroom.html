@@ -509,6 +509,8 @@
         let audioEnabled = true;
         let screenTrackSenders = {}; 
         let currentScreenSharer = null;
+        // When a new remote user is detected, assign them to a slot
+       
 
         const scene = document.querySelector('a-scene');
         document.addEventListener('fullscreenchange', function () {
@@ -543,69 +545,24 @@
     // Screen Sharing Handler
     document.getElementById('ScreenSharing').addEventListener('click', async () => {
             try {
-                const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                // Start screen sharing
+                screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
                 const screenTrack = screenStream.getVideoTracks()[0];
 
-                // Only update the localVideo element, NOT screenShareVideo
-                const localVideoEl = document.getElementById("localVideo");
-                localVideoEl._previousSrcObject = localVideoEl.srcObject;
-                localVideoEl.srcObject = screenStream;
-                localVideoEl.play();
+                // Show screen locally (optional)
+                document.getElementById("localVideo").srcObject = screenStream;
 
-                // Hide the extra screenShareVideo
-                const videoEl = document.getElementById("screenShareVideo");
-                videoEl.srcObject = null;
-                videoEl.style.display = "none";
+                // Replace video track in peers
+                replaceVideoTrack(screenTrack);
 
-                // Add the screen track to all peer connections and renegotiate
-                for (const [username, pc] of Object.entries(peerConnections)) {
-                    const sender = pc.addTrack(screenTrack, screenStream);
-                    screenTrackSenders[username] = sender;
+                // When screen sharing stops, revert to camera
+                screenTrack.onended = () => {
+                    // Restore camera preview
+                    document.getElementById("localVideo").srcObject = localStream;
 
-                    const offer = await pc.createOffer();
-                    await pc.setLocalDescription(offer);
-                    chatSocket.send(JSON.stringify({
-                        type: "sdp",
-                        sdp: pc.localDescription,
-                        sender: user_username,
-                        target: username
-                    }));
-                }
-
-                chatSocket.send(JSON.stringify({
-                    type: "screen_share_stream",
-                    sender: user_username
-                }));
-
-                screenTrack.onended = async () => {
-                    for (const [username, pc] of Object.entries(peerConnections)) {
-                        if (screenTrackSenders[username]) {
-                            pc.removeTrack(screenTrackSenders[username]);
-                            delete screenTrackSenders[username];
-
-                            const offer = await pc.createOffer();
-                            await pc.setLocalDescription(offer);
-                            chatSocket.send(JSON.stringify({
-                                type: "sdp",
-                                sdp: pc.localDescription,
-                                sender: user_username,
-                                target: username
-                            }));
-                        }
-                    }
-                    chatSocket.send(JSON.stringify({
-                        type: "screen_share_stopped",
-                        sender: user_username
-                    }));
-
-                    // Restore local video to webcam when screen sharing stops
-                    if (localVideoEl._previousSrcObject) {
-                        localVideoEl.srcObject = localVideoEl._previousSrcObject;
-                        localVideoEl.play();
-                    }
-                    // Still keep screenShareVideo hidden
-                    videoEl.srcObject = null;
-                    videoEl.style.display = "none";
+                    // Replace video track in peers with the camera track
+                    const cameraTrack = localStream.getVideoTracks()[0];
+                    replaceVideoTrack(cameraTrack);
                 };
             } catch (err) {
                 console.error("Error sharing screen:", err);
@@ -787,6 +744,9 @@
                     document.body.appendChild(remoteVideoHidden);
                 }
 
+                // Attach the full media stream (audio+video)
+                remoteVideoHidden.srcObject = stream;
+
                 // 2. VISIBLE remote video in the UI
                 let remoteVideoVisible = document.getElementById(`remoteVideo-${uniqueId}`);
                 if (!remoteVideoVisible) {
@@ -798,21 +758,23 @@
                     remoteVideoVisible.style.marginBottom = "10px";
                     document.getElementById("remoteVideos").appendChild(remoteVideoVisible);
                 }
-
-                // Attach the full media stream (audio+video)
-                remoteVideoHidden.srcObject = stream;
                 remoteVideoVisible.srcObject = stream;
 
-                // Change this to match your second user's uniqueId
-                const secondUserUniqueId = "second";
+                const avatarPositions = [
+                    "8 2 18",      // First remote user
+                    "-8 2 18",     // Second remote user
+                          // Third remote user
+                        // Fourth remote user
+                    ];
 
+                // 3. A-Frame avatar box for this user
                 remoteVideoHidden.onloadeddata = () => {
-                    if (uniqueId === secondUserUniqueId) {
-                        // Use the fixed-position box
+                    // Use a fixed box for "second" user, otherwise create dynamic boxes
+                    if (uniqueId === "second") {
                         let avatar = document.getElementById("avatar-second");
                         if (avatar) {
                             avatar.setAttribute("material", `src: #video-${uniqueId}`);
-                            avatar.setAttribute("position", "-8 2 12");
+                            avatar.setAttribute("position", "8 2 18");
                         }
                     } else {
                         // Dynamic avatars for others
@@ -821,19 +783,28 @@
                             avatar = document.createElement("a-box");
                             avatar.setAttribute("id", `avatar-${uniqueId}`);
                             avatar.setAttribute("material", `src: #video-${uniqueId}`);
-                            avatar.setAttribute("position", "8 2 18");
+
+                            // Assign position from your array based on user index
+                            const userIndex = Object.keys(remoteUserIds).indexOf(username);
+                            const desiredPosition = avatarPositions[userIndex] || "8 2 18"; // fallback
+                            avatar.setAttribute("position", desiredPosition);
+
                             avatar.setAttribute("width", "2");
                             avatar.setAttribute("height", "2");
                             avatar.setAttribute("rotation", "0 90 0");
                             document.querySelector("a-scene").appendChild(avatar);
                         } else {
                             avatar.setAttribute("material", `src: #video-${uniqueId}`);
+                            // Optional: update position if needed on reconnect/etc.
+                            const userIndex = Object.keys(remoteUserIds).indexOf(username);
+                            const desiredPosition = avatarPositions[userIndex] || "8 2 18"; // fallback
+                            avatar.setAttribute("position", desiredPosition);
                         }
                     }
                     remoteVideoHidden.play();
                 };
                 remoteVideoVisible.onloadeddata = () => remoteVideoVisible.play();
-            };
+                }
 
              pc.onicecandidate = (event) => {
                     if (event.candidate) {
