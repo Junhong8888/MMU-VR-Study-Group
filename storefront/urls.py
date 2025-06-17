@@ -17,18 +17,22 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path , include
 import debug_toolbar
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('playground/',include('playground.urls')),
     path('__debug__/', include('debug_toolbar.urls')),
     path('',include('users.urls')),
     path('users/',include('users.urls')),
     path('chat/',include('chat.urls')),
     path('grouping/',include('grouping.urls')),
-    #path('test/',include('test.urls')),
     path('zfeng/',include('zfeng.urls')),
     path('dashboard/',include('dashboard.urls')),
+<<<<<<< HEAD
     path('todoapp',include('todoapp.urls')),
     path('users/', include('django.contrib.auth.urls')),
 ] 
+=======
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+>>>>>>> deploy

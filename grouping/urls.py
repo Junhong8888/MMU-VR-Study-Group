@@ -11,6 +11,10 @@ urlpatterns = [
     path('delete-task/<int:id>/', views.DeleteTask, name='delete'),
     path('update/<int:id>/', views.Update, name='update'),
     path('task/<int:id>/', views.TaskDetail, name='task-detail'),
+<<<<<<< HEAD
      path('ranking/<str:Room_join_code>/', views.ranking, name='ranking'),
+=======
+    path('ranking/<str:Room_join_code>/', views.ranking, name='ranking'),
+>>>>>>> deploy
 
 ]

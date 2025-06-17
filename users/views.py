@@ -5,7 +5,7 @@ from .forms import SignUpForm
 
 # Create your views here.
 def home(request):
-    return render(request,'test.html')
+    return render(request,'base.html')
 
 def login_signup(request):
     signup_form = SignUpForm()  
@@ -33,7 +33,7 @@ def login_signup(request):
             else:
                 print(signup_form.errors)
 
-    return render(request, 'mmu proj.html', {'form': signup_form})
+    return render(request, 'login&signup.html', {'form': signup_form})
 
 def main(request):
     return render(request,'main.html')

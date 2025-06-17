@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: django-app
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "daphne storefront.asgi:application"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: storefront.settings
+      - key: REDIS_URL
+        fromService:
+          name: redis
+          type: redis
+
+  - type: redis
+    name: redis
+
+  - type: web
+    name: etherpad
+    env: docker
+    repo: https://github.com/ether/etherpad-lite
+    plan: starter
+    dockerfilePath: ./etherpad/Dockerfile
+    envVars:
+  - key: PORT
+    value: 9001

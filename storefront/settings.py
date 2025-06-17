@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+import urllib.parse as urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,10 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-@kdz)3*0&%_rp_5&ujr@6@@f=l%qwic3%9f8tq=(p5ev49y6ec'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost', 'nginx', '127.0.0.1' , 'mmu-vr-study-group.onrender.com'
+]
 
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Application definition
 
@@ -38,20 +44,25 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'playground',
     'users',
     'grouping',
     'chat',
     'channels',
-    'dashboard',
     'zfeng',
     'debug_toolbar',
+<<<<<<< HEAD
     'todoapp',
     'django_ckeditor_5',
     'workspace_chat',
+=======
+    'ckeditor',
+    'workspace_chat',
+    'dashboard.apps.DashboardConfig',
+>>>>>>> deploy
 ]
 
 MIDDLEWARE = [
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -123,11 +134,16 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
+<<<<<<< HEAD
 TIME_ZONE = 'Asia/Kuala_Lumpur'
+=======
+TIME_ZONE = "Asia/Kuala_Lumpur" 
+
+USE_TZ = True
+>>>>>>> deploy
 
 USE_I18N = True
 
-USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -146,7 +162,35 @@ CHANNEL_LAYERS = {
     }
 }
 
+<<<<<<< HEAD
 LOGIN_URL = '/users/login/'
+=======
+redis_url = os.getenv("REDIS_URL")
+if redis_url:
+    url = urlparse.urlparse(redis_url)
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": ['redis://red-d153c4nfte5s738oisj0:6379'],  # ✅ Use the variable, not raw string
+            },
+        },
+    }
 
-# Allow your site to be framed only by the same origin (recommended)
-X_FRAME_OPTIONS = 'SAMEORIGIN'
+LOGIN_URL = '/users/login_signup/'
+>>>>>>> deploy
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+    }
+}
+
+CSRF_TRUSTED_ORIGINS = [
+    
+    'https://mmu-vr-study-group.onrender.com'
+]
+
+SESSION_COOKIE_AGE = 900  # 15 minutes
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

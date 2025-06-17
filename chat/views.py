@@ -11,5 +11,5 @@ def room(request,room_name):
         'room_name': room_name
     })
 
-def etherpad(request):
-    return render(request,'pad_embed.html',{})
+def etherpad(request,room_name):
+    return render(request,'pad_embed.html',{'room_name': room_name})
