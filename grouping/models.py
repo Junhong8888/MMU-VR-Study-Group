@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 from ckeditor.fields import RichTextField
-from django.utils import timezone
 
 
 # Create your models here.
@@ -12,7 +11,6 @@ class Topic(models.Model):
 
     def __str__(self):
         return self.name 
-
 
 class Room(models.Model):
     host = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -36,21 +34,9 @@ class Room(models.Model):
     def __str__(self):
         return self.roomname
 
-
 class Document(models.Model):
     title = models.CharField(max_length=200)
     content = RichTextField()
 
     def __str__(self):
         return self.title
-
-
-# New model to store chat messages in a room (workspace)
-class Message(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    room = models.ForeignKey(Room, related_name='messages', on_delete=models.CASCADE)
-    content = models.TextField()
-    timestamp = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return f"{self.user.username} @ {self.room.roomname}: {self.content[:20]}"

@@ -1,8 +1,4 @@
-<<<<<<< HEAD:playground/templates/ranking.html
-{% extends 'test.html' %}
-=======
 {% extends 'base.html' %}
->>>>>>> deploy:templates/ranking.html
 
 {% block content %}
  <!-- ✅ Ranking Section starts here -->
@@ -12,10 +8,7 @@
     <table class="table">
       <thead>
         <tr>
-<<<<<<< HEAD:playground/templates/ranking.html
-=======
           <th>Place</th>
->>>>>>> deploy:templates/ranking.html
           <th>Username</th>
           <th>Completed Tasks</th>
         </tr>
@@ -23,10 +16,7 @@
       <tbody>
         {% for entry in ranking %}
         <tr>
-<<<<<<< HEAD:playground/templates/ranking.html
-=======
           <td>{{ forloop.counter }}</td>
->>>>>>> deploy:templates/ranking.html
           <td>{{ entry.assigned_to__username }}</td>
           <td>{{ entry.completed_count }}</td>
         </tr>

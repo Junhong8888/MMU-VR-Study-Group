@@ -29,10 +29,4 @@ urlpatterns = [
     path('grouping/',include('grouping.urls')),
     path('zfeng/',include('zfeng.urls')),
     path('dashboard/',include('dashboard.urls')),
-<<<<<<< HEAD
-    path('todoapp',include('todoapp.urls')),
-    path('users/', include('django.contrib.auth.urls')),
-] 
-=======
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
->>>>>>> deploy

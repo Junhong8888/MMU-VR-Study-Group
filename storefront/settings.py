@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-@kdz)3*0&%_rp_5&ujr@6@@f=l%qwic3%9f8tq=(p5ev49y6ec'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     'localhost', 'nginx', '127.0.0.1' , 'mmu-vr-study-group.onrender.com'
@@ -50,15 +50,9 @@ INSTALLED_APPS = [
     'channels',
     'zfeng',
     'debug_toolbar',
-<<<<<<< HEAD
-    'todoapp',
-    'django_ckeditor_5',
-    'workspace_chat',
-=======
     'ckeditor',
     'workspace_chat',
     'dashboard.apps.DashboardConfig',
->>>>>>> deploy
 ]
 
 MIDDLEWARE = [
@@ -134,13 +128,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-<<<<<<< HEAD
-TIME_ZONE = 'Asia/Kuala_Lumpur'
-=======
+
+
 TIME_ZONE = "Asia/Kuala_Lumpur" 
 
 USE_TZ = True
->>>>>>> deploy
+
 
 USE_I18N = True
 
@@ -162,9 +155,6 @@ CHANNEL_LAYERS = {
     }
 }
 
-<<<<<<< HEAD
-LOGIN_URL = '/users/login/'
-=======
 redis_url = os.getenv("REDIS_URL")
 if redis_url:
     url = urlparse.urlparse(redis_url)
@@ -178,7 +168,6 @@ if redis_url:
     }
 
 LOGIN_URL = '/users/login_signup/'
->>>>>>> deploy
 
 CACHES = {
     "default": {
