@@ -72,11 +72,7 @@
     });
 
     // Replace with your workspace ID from backend template context or JS variable
-<<<<<<< HEAD:playground/templates/workspace_chat.html
-    const workspaceId = "{{ workspace.id }}";
-=======
     const workspaceId = "{{ room.id }}";
->>>>>>> deploy:templates/workspace_chat.html
 
     // WebSocket URL (adjust if your site uses HTTPS or different host)
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
@@ -123,8 +119,4 @@
       }
     });
   })();
-<<<<<<< HEAD:playground/templates/workspace_chat.html
 </script>
-=======
-</script>
->>>>>>> deploy:templates/workspace_chat.html
