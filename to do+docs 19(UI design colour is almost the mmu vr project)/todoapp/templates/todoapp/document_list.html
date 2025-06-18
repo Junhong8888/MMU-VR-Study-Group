@@ -1,7 +1,0 @@
-<h1>My Documents</h1>
-<a href="{% url 'document_create' %}">+ New Document</a>
-<ul>
-  {% for doc in documents %}
-    <li><a href="{% url 'document_edit' doc.pk %}">{{ doc.title }}</a></li>
-  {% endfor %}
-</ul>
