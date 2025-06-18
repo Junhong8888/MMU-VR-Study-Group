@@ -7,6 +7,7 @@ class ChatRoomConsumers(AsyncWebsocketConsumer):
         self.room_group_name = f'chat_{self.room_name}'
         self.username = self.scope["user"].username  # Get the username from Django's auth system
 
+        # Join room group
         await self.channel_layer.group_add(
             self.room_group_name,
             self.channel_name
